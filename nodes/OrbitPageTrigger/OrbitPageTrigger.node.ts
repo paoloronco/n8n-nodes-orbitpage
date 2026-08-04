@@ -9,6 +9,9 @@ import type {
 } from 'n8n-workflow';
 import { cronNodeOptions, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { orbitPageApiRequest } from '../OrbitPage/transport';
+import { resolveMainConnectionType } from '../shared/n8nCompatibility';
+
+const mainConnectionType = resolveMainConnectionType(NodeConnectionTypes);
 
 const eventPaths: Record<string, string> = {
 	workspaceRevisionChanged: '/workspace',
@@ -65,7 +68,7 @@ export class OrbitPageTrigger implements INodeType {
 		defaults: { name: 'OrbitPage Trigger' },
 		usableAsTool: true,
 		inputs: [],
-		outputs: [NodeConnectionTypes.Main],
+		outputs: [mainConnectionType],
 		credentials: [{ name: 'orbitPageApi', required: true }],
 		polling: true,
 		properties: [

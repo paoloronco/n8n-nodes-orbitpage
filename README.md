@@ -56,6 +56,12 @@ n8n-nodes-orbitpage
 Restart self-hosted n8n if your installation requires it. Verified community
 node availability on n8n Cloud depends on the n8n review process.
 
+If n8n reports `Class could not be found` after a failed or partial install,
+stop n8n, remove only the stale `n8n-nodes-orbitpage` package from the
+instance's community-nodes directory, restart n8n and install the latest
+version again. Some n8n releases retain a partial package until the process is
+restarted.
+
 ### Self-hosted command line
 
 From the n8n data directory:
@@ -64,7 +70,8 @@ From the n8n data directory:
 npm install n8n-nodes-orbitpage
 ```
 
-Use Node.js 22 or newer.
+Use the Node.js version supported by your n8n installation. The package runtime
+supports Node.js 20.19 or newer.
 
 ## Credentials
 
@@ -205,17 +212,8 @@ Releases are automated by [the publish workflow](.github/workflows/publish.yml).
 Every version tag runs the complete quality suite before publishing the public
 package with provenance.
 
-The initial `0.1.0` release can be started after adding the temporary
-package-scoped `NPM_TOKEN` repository secret:
-
-```bash
-git tag 0.1.0
-git push origin 0.1.0
-```
-
-After the first publication, configure the npm Trusted Publisher for
-`paoloronco/n8n-nodes-orbitpage` and `publish.yml`, then delete the GitHub secret
-and revoke the temporary token. Future releases can be prepared with:
+Configure the npm Trusted Publisher for `paoloronco/n8n-nodes-orbitpage` and
+`publish.yml`. Releases can then be prepared with:
 
 ```bash
 npm run release

@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## 0.1.1 - 2026-08-04
+
+- Keep node class construction compatible with n8n 1.x installations that do
+  not export `NodeConnectionTypes`.
+- Verify all published node and credential class names through an n8n-style
+  isolated loader during CI.
+
 ## 0.1.0 - 2026-08-04
 
 - Add guided access to all 84 OrbitPage Automation REST API operations.

@@ -17,6 +17,9 @@ import {
 	type PathParameter,
 } from './operations';
 import { fullResponse, orbitPageApiRequest, responseRevision } from './transport';
+import { resolveMainConnectionType } from '../shared/n8nCompatibility';
+
+const mainConnectionType = resolveMainConnectionType(NodeConnectionTypes);
 
 function parseJson(
 	context: IExecuteFunctions,
@@ -349,8 +352,8 @@ export class OrbitPage implements INodeType {
 		description: 'Manage OrbitPage end to end through the Automation REST API',
 		defaults: { name: 'OrbitPage' },
 		usableAsTool: true,
-		inputs: [NodeConnectionTypes.Main],
-		outputs: [NodeConnectionTypes.Main],
+		inputs: [mainConnectionType],
+		outputs: [mainConnectionType],
 		credentials: [{ name: 'orbitPageApi', required: true }],
 		properties: orbitPageProperties,
 	};

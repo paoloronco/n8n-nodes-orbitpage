@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-orbitpage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n community nodes for the complete OrbitPage Automation REST API",
   "license": "MIT",
   "homepage": "https://orbitpage.com/en-US/docs/api-tokens",
@@ -24,7 +24,7 @@
     "url": "https://github.com/paoloronco/n8n-nodes-orbitpage/issues"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "build": "n8n-node build",
@@ -35,7 +35,8 @@
     "test": "vitest run test",
     "docs:generate": "node scripts/generate-operation-docs.cjs",
     "docs:check": "node scripts/generate-operation-docs.cjs --check",
-    "check": "npm run lint && npm run build && npm run docs:check && npm run test",
+    "check": "npm run lint && npm run build && npm run load:check && npm run docs:check && npm run test",
+    "load:check": "node scripts/check-package-load.cjs",
     "release": "n8n-node release",
     "prepublishOnly": "n8n-node prerelease"
   },
