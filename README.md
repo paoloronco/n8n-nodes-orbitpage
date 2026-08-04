@@ -1,5 +1,9 @@
 # n8n-nodes-orbitpage
 
+[![CI](https://github.com/paoloronco/n8n-nodes-orbitpage/actions/workflows/ci.yml/badge.svg)](https://github.com/paoloronco/n8n-nodes-orbitpage/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/n8n-nodes-orbitpage.svg)](https://www.npmjs.com/package/n8n-nodes-orbitpage)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+
 Community nodes for managing a hosted OrbitPage end to end from n8n. The
 package implements every operation in the OrbitPage Automation REST API, adds
 safe automatic revision handling, supports direct binary uploads, and includes
@@ -192,15 +196,33 @@ changing the typed operation catalog, rebuild and regenerate its checked-in
 reference with `npm run build && npm run docs:generate`.
 
 The package has no runtime dependencies outside the `n8n-workflow` peer. It
-uses the official `@n8n/node-cli` toolchain and is prepared for npm provenance
-publishing through GitHub Actions.
+uses the official `@n8n/node-cli` toolchain and publishes npm provenance through
+GitHub Actions.
 
-For releases, create the public `paoloronco/n8n-nodes-orbitpage` repository,
-push this package as its root and configure npm **Publish access → Trusted
-Publishers** for that repository and `publish.yml`. OIDC is preferred and needs
-no long-lived GitHub secret. A package-scoped `NPM_TOKEN` is supported only as
-the initial/fallback publication route. Tagging a version such as `0.1.0`
-starts the checked, provenance-attested release workflow.
+## Releases
+
+Releases are automated by [the publish workflow](.github/workflows/publish.yml).
+Every version tag runs the complete quality suite before publishing the public
+package with provenance.
+
+The initial `0.1.0` release can be started after adding the temporary
+package-scoped `NPM_TOKEN` repository secret:
+
+```bash
+git tag 0.1.0
+git push origin 0.1.0
+```
+
+After the first publication, configure the npm Trusted Publisher for
+`paoloronco/n8n-nodes-orbitpage` and `publish.yml`, then delete the GitHub secret
+and revoke the temporary token. Future releases can be prepared with:
+
+```bash
+npm run release
+```
+
+OIDC is the permanent release path; no long-lived npm token belongs in GitHub
+or the repository.
 
 ## License
 
