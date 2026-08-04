@@ -1,3 +1,5 @@
+// eslint-disable-next-line @n8n/community-nodes/no-restricted-imports -- Test-only README contract check; this import is not part of the packaged node runtime.
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	API_OPERATION_SPECS,
@@ -6,6 +8,8 @@ import {
 	operationSpec,
 	operationsForResource,
 } from '../nodes/OrbitPage/operations';
+
+const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
 
 describe('OrbitPage operation catalog', () => {
 	it('exposes all 84 operations from the public API contract', () => {
@@ -38,5 +42,26 @@ describe('OrbitPage operation catalog', () => {
 		expect(operationSpec('uploadMediaBinary')?.kind).toBe('mediaUpload');
 		expect(operationSpec('uploadShopFileBinary')?.kind).toBe('shopFileUpload');
 		expect(operationSpec('customRequest')?.kind).toBe('custom');
+	});
+
+	it('documents setup, the first safe read, examples and actionable failures', () => {
+		for (const requiredDocumentation of [
+			'## End-to-end quick start',
+			'Personal Workspace Token',
+			'https://orbitpage.com',
+			'GET /api/v1/workspace',
+			'Workspace → Get',
+			'examples/read-workspace.json',
+			'examples/watch-publication.json',
+			'## Troubleshooting',
+			'Maximum number of redirects exceeded',
+			'401 Unauthorized',
+			'403 Forbidden',
+			'409 Conflict',
+			'428 Precondition Required',
+			'429 Too Many Requests',
+		]) {
+			expect(readme).toContain(requiredDocumentation);
+		}
 	});
 });

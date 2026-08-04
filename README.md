@@ -73,6 +73,39 @@ npm install n8n-nodes-orbitpage
 Use the Node.js version supported by your n8n installation. The package runtime
 supports Node.js 20.19 or newer.
 
+## End-to-end quick start
+
+1. In OrbitPage, open **Dashboard → Account → Personal API tokens**.
+2. Create a token for this workflow. For the first read-only test, grant
+   `workspace:read`; add only the resource scopes the finished workflow needs.
+3. In n8n, open **Credentials**, create **OrbitPage API**, and enter:
+
+   | Field | Value |
+   | --- | --- |
+   | Token Type | **Personal Workspace Token** |
+   | Personal API Token | The one-time `op_pat_...` secret copied from OrbitPage |
+   | Base URL | `https://orbitpage.com` |
+
+4. Save the credential. Its connection test calls `GET /api/v1/workspace`; a
+   successful test confirms the token, workspace binding and read scope without
+   changing any data.
+5. Create a workflow, add the **OrbitPage** node, select **Workspace → Get
+   Workspace**, attach the credential, and choose **Execute step**.
+6. Continue with a guided resource and operation. The editor shows the required
+   fields, while the [operation matrix](docs/OPERATIONS.md) lists the API method,
+   path, scope, body requirement and revision source for every action.
+
+Two importable starting workflows are included:
+
+- [`examples/read-workspace.json`](examples/read-workspace.json) performs the
+  safe first read;
+- [`examples/watch-publication.json`](examples/watch-publication.json) starts a
+  workflow when publication state changes.
+
+After importing an example, replace its placeholder credential reference by
+selecting your saved **OrbitPage API** credential in the node. Exported workflow
+JSON must never contain the token itself.
+
 ## Credentials
 
 1. In OrbitPage, open **Dashboard → Account → Personal API tokens**.
@@ -87,6 +120,10 @@ credential. Never reuse an operator credential in tenant workflows.
 
 The default Base URL is `https://orbitpage.com`. Change it only when OrbitPage
 support provides a staging URL. HTTP is accepted only for localhost development.
+
+Token scopes and workspace binding are fixed when the token is created. If a
+workflow later needs a different capability or workspace, create a replacement
+token, update and test the n8n credential, then revoke the old token.
 
 ## Safe revision-controlled writes
 
@@ -165,6 +202,33 @@ response body. Enable **Include Response Headers and Status** to receive:
 
 This is useful when a later node needs `ETag`, `Retry-After` or other response
 metadata. **Continue On Fail** returns an error item linked to the failing input.
+
+## Troubleshooting
+
+| n8n message or API status | Meaning | Resolution |
+| --- | --- | --- |
+| `Class could not be found` | n8n retained an incomplete or old community-node installation. | Restart n8n, remove only the stale `n8n-nodes-orbitpage` installation from its community-nodes directory, then install the latest package. |
+| `Maximum number of redirects exceeded` | The Base URL, a reverse proxy, or an upstream deployment is redirecting the API request repeatedly. | Use exactly `https://orbitpage.com` without `/api/v1`. Confirm `https://orbitpage.com/api/v1/workspace` reaches the API, then retry the credential. |
+| `401 Unauthorized` | The token is missing, malformed, expired or revoked, or the wrong token type was selected. | Paste the complete `op_pat_...` secret and select **Personal Workspace Token**. A secret shown only once cannot be recovered; create a replacement if necessary. |
+| `403 Forbidden` | The token lacks the operation scope, its owner lost workspace access, or the target is protected. | Create a token with the required scope or use a separately authorized operator credential for `/operator` operations. |
+| `409 Conflict` | Another change advanced the workspace revision. | Read the resource again and retry the intended change against the new revision. **Fetch Latest Automatically** handles the normal case. |
+| `428 Precondition Required` | A revision-controlled write did not include `If-Match`. | Use **Fetch Latest Automatically**, or pass the `ETag`/revision from a preceding read with **Enter Manually**. |
+| `429 Too Many Requests` | The token reached a rate limit. | Wait for `Retry-After`, then retry with exponential backoff and jitter. |
+
+To separate n8n configuration from token or service problems, test the same
+credential boundary from a trusted shell without printing the token:
+
+```bash
+export ORBITPAGE_TOKEN='op_pat_...'
+curl --silent --show-error --include \
+  --header "Authorization: Bearer $ORBITPAGE_TOKEN" \
+  https://orbitpage.com/api/v1/workspace
+```
+
+A valid workspace token returns `200`. A JSON `401`, `403` or `429` response is
+an actionable API result; an HTML response or repeated redirect usually points
+to the configured host or reverse proxy. When requesting support, share the HTTP
+status, JSON `code`, n8n version and package version, but never the token.
 
 ## Security practices
 

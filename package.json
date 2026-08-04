@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-orbitpage",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community nodes for the complete OrbitPage Automation REST API",
   "license": "MIT",
   "homepage": "https://orbitpage.com/en-US/docs/api-tokens",
