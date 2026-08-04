@@ -2,6 +2,15 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+- Reorganize the npm README around requirements, installation, first use,
+  scopes, safety and focused guides.
+- Add contributor, security, example and maintainer documentation without
+  changing the runtime node contract.
+- Test the supported Node.js 20.19 and 22 lines in CI and require exact
+  package/lock/tag parity for OIDC-only npm publishing.
+
 ## 0.1.2 - 2026-08-04
 
 - Add an end-to-end quick start covering token creation, exact n8n credential

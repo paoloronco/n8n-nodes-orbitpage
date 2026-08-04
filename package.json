@@ -34,7 +34,7 @@
     "lint:fix": "n8n-node lint --fix",
     "test": "vitest run test",
     "docs:generate": "node scripts/generate-operation-docs.cjs",
-    "docs:check": "node scripts/generate-operation-docs.cjs --check",
+    "docs:check": "node scripts/generate-operation-docs.cjs --check && node scripts/check-markdown-links.cjs",
     "check": "npm run lint && npm run build && npm run load:check && npm run docs:check && npm run test",
     "load:check": "node scripts/check-package-load.cjs",
     "release": "n8n-node release",

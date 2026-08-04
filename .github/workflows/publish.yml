@@ -5,27 +5,59 @@ on:
     tags:
       - '*.*.*'
 
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: Publish to npm
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Validate tag, package metadata, and main ancestry
+        run: |
+          set -Eeuo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          LOCK_VERSION="$(node -p "require('./package-lock.json').version")"
+          LOCK_ROOT_VERSION="$(node -p "require('./package-lock.json').packages[''].version")"
+
+          if [ "$GITHUB_REF_NAME" != "$VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME must exactly match package version $VERSION."
+            exit 1
+          fi
+          if [ "$LOCK_VERSION" != "$VERSION" ] || [ "$LOCK_ROOT_VERSION" != "$VERSION" ]; then
+            echo "::error::package.json and package-lock.json versions must match."
+            exit 1
+          fi
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Release tags must use X.Y.Z SemVer."
+            exit 1
+          fi
+
+          git fetch origin main --no-tags
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::The tagged commit is not contained in origin/main."
+            exit 1
+          fi
+      - name: Install OIDC-capable npm CLI
+        run: npm install --global npm@11.17.0
       - name: Install dependencies
         run: npm ci
       - name: Validate package
         run: npm run check
-      - name: Release with provenance
-        run: |
-          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
-          npm run release
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Inspect published files
+        run: npm pack --dry-run
+      - name: Publish with npm Trusted Publishing
+        run: npm publish --access public
