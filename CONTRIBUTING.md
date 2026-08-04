@@ -16,7 +16,7 @@ published on GitHub and npm.
 
 ## Development environment
 
-Use Node.js 22 or newer and install the locked dependencies:
+Use Node.js 22.22 or newer and install the locked dependencies:
 
 ```bash
 npm ci
@@ -28,8 +28,8 @@ Run the local n8n development environment with:
 npm run dev
 ```
 
-The package declares runtime support for Node.js 20.19 or newer, while the
-development and CI toolchain runs on Node.js 22.
+The package declares runtime support for Node.js 22.22 or newer. CI validates
+the locked toolchain on Node.js 22.22 and 24.
 
 ## Repository conventions
 

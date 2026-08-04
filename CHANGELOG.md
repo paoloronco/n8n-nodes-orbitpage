@@ -8,8 +8,9 @@ All notable changes to this package are documented here.
   scopes, safety and focused guides.
 - Add contributor, security, example and maintainer documentation without
   changing the runtime node contract.
-- Test the supported Node.js 20.19 and 22 lines in CI and require exact
-  package/lock/tag parity for OIDC-only npm publishing.
+- Align the declared runtime floor with the current n8n toolchain at Node.js
+  22.22, test Node.js 22.22 and 24 in CI, and require exact package/lock/tag
+  parity for OIDC-only npm publishing.
 
 ## 0.1.2 - 2026-08-04
 

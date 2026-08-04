@@ -23,7 +23,7 @@ Git. The published npm package includes the built `dist/` output.
 
 ## Development setup
 
-Use Node.js 22 or newer for package development:
+Use Node.js 22.22 or newer for package development:
 
 ```bash
 npm ci

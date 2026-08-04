@@ -41,7 +41,7 @@ npm run docs:generate
 
 ## Required checks
 
-Use Node.js 22 or newer for development. Install with `npm ci` and run:
+Use Node.js 22.22 or newer for development. Install with `npm ci` and run:
 
 ```bash
 npm run check

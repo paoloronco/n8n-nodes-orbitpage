@@ -28,7 +28,7 @@ important workspace state changes.
 | --- | --- |
 | OrbitPage | A hosted OrbitPage account and workspace at `https://orbitpage.com` |
 | n8n | Current n8n 2.x releases; the package uses n8n Nodes API v1 |
-| Node.js | Runtime `>=20.19`; CI tests Node.js 20.19 and 22, while maintainers normally develop on 22 |
+| Node.js | Runtime `>=22.22`; CI tests Node.js 22.22 and 24, while maintainers normally develop on 22.22 |
 | n8n Cloud | Availability depends on the n8n community-node review process |
 
 The package is built and load-checked against `n8n-workflow` 2.16.0. If you

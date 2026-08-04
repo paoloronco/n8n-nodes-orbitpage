@@ -24,7 +24,7 @@
     "url": "https://github.com/paoloronco/n8n-nodes-orbitpage/issues"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=22.22.0"
   },
   "scripts": {
     "build": "n8n-node build",

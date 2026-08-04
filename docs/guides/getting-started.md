@@ -7,8 +7,8 @@ and executes a non-destructive workspace read.
 
 - A hosted OrbitPage account with access to a workspace.
 - A current n8n 2.x installation that permits community nodes.
-- Node.js 20.19 or newer for a self-hosted runtime. Package development and CI
-  use Node.js 22.
+- Node.js 22.22 or newer for a self-hosted runtime. CI validates Node.js 22.22
+  and 24.
 - Permission to create personal API tokens in OrbitPage.
 
 Protected operator operations require separate access to the OrbitPage operator
