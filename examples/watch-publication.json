@@ -1,0 +1,29 @@
+{
+  "name": "OrbitPage - Watch publication",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": { "item": [{ "mode": "everyMinute" }] },
+        "event": "publicationChanged",
+        "emitInitialState": false
+      },
+      "id": "df1b8386-a861-45dd-b7bd-10b6b292aab5",
+      "name": "When OrbitPage Publication Changes",
+      "type": "n8n-nodes-orbitpage.orbitPageTrigger",
+      "typeVersion": 1,
+      "position": [300, 300],
+      "credentials": {
+        "orbitPageApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OrbitPage API account"
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {},
+  "versionId": "6ba2c023-7054-4ec9-8cb2-34ef8bd57fb1",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

@@ -1,0 +1,14 @@
+{
+  "node": "n8n-nodes-orbitpage",
+  "nodeVersion": "1.0",
+  "codexVersion": "1.0",
+  "categories": ["Marketing", "Development", "Sales"],
+  "resources": {
+    "credentialDocumentation": [
+      { "url": "https://orbitpage.com/en-US/docs/api-tokens#authenticate" }
+    ],
+    "primaryDocumentation": [
+      { "url": "https://github.com/paoloronco/n8n-nodes-orbitpage#orbitpage-trigger" }
+    ]
+  }
+}

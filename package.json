@@ -1,0 +1,77 @@
+{
+  "name": "n8n-nodes-orbitpage",
+  "version": "0.1.0",
+  "description": "n8n community nodes for the complete OrbitPage Automation REST API",
+  "license": "MIT",
+  "homepage": "https://orbitpage.com/en-US/docs/api-tokens",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "orbitpage",
+    "automation",
+    "website-builder",
+    "link-in-bio"
+  ],
+  "author": {
+    "name": "Paolo Ronco",
+    "email": "paolo.ronco2000@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paoloronco/n8n-nodes-orbitpage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paoloronco/n8n-nodes-orbitpage/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "test": "vitest run test",
+    "docs:generate": "node scripts/generate-operation-docs.cjs",
+    "docs:check": "node scripts/generate-operation-docs.cjs --check",
+    "check": "npm run lint && npm run build && npm run docs:check && npm run test",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE.md"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": [
+      "dist/credentials/OrbitPageApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/OrbitPage/OrbitPage.node.js",
+      "dist/nodes/OrbitPageTrigger/OrbitPageTrigger.node.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "0.42.0",
+    "eslint": "9.39.4",
+    "n8n-workflow": "2.16.0",
+    "prettier": "3.8.3",
+    "release-it": "20.2.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.4"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

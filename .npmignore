@@ -1,0 +1,7 @@
+credentials/**/*.ts
+nodes/**/*.ts
+test/
+.github/
+*.tsbuildinfo
+eslint.config.mjs
+tsconfig.json
