@@ -1,5 +1,3 @@
-import type { INodePropertyOptions } from 'n8n-workflow';
-
 export type OrbitPageMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 export type OrbitPageResource =
 	| 'workspace'
@@ -36,6 +34,13 @@ export type PathParameter =
 	| 'tenantId';
 
 export type OperationKind = 'api' | 'mediaUpload' | 'shopFileUpload' | 'custom';
+
+type OrbitPageNodeOption = {
+	name: string;
+	value: string;
+	action?: string;
+	description?: string;
+};
 
 export type OperationSpec = {
 	value: string;
@@ -79,7 +84,7 @@ const api = (
 	...options,
 });
 
-export const RESOURCE_OPTIONS: INodePropertyOptions[] = [
+export const RESOURCE_OPTIONS: OrbitPageNodeOption[] = [
 	{ name: 'AI', value: 'ai' },
 	{ name: 'Analytics', value: 'analytics' },
 	{ name: 'Backup and Version', value: 'backup' },
@@ -216,7 +221,7 @@ export function operationSpec(value: string): OperationSpec | undefined {
 	return OPERATION_SPECS.find((spec) => spec.value === value);
 }
 
-export function operationsForResource(resource: string): INodePropertyOptions[] {
+export function operationsForResource(resource: string): OrbitPageNodeOption[] {
 	return OPERATION_SPECS.filter((spec) => spec.resource === resource).map((spec) => ({
 		name: spec.name,
 		value: spec.value,
