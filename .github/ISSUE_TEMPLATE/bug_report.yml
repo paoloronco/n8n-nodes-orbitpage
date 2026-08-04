@@ -1,0 +1,53 @@
+name: Bug report
+description: Report reproducible incorrect behavior in the OrbitPage n8n nodes.
+title: 'bug: '
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Do not include API tokens, credentials, private URLs, or customer data.
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: 0.2.0
+    validations:
+      required: true
+  - type: input
+    id: n8n-version
+    attributes:
+      label: n8n version
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation
+      options:
+        - n8n Cloud
+        - Self-hosted Docker
+        - Self-hosted npm
+        - Other self-hosted setup
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the resource, operation, non-sensitive parameters, and exact sequence.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Redact secrets and personal data from errors or execution output.
+    validations:
+      required: true

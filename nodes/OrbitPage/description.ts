@@ -1,86 +1,76 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { operationBodyGuidance } from './bodyGuidance';
 import {
 	OPERATION_SPECS,
 	RESOURCE_OPTIONS,
+	operationEffectLabel,
 	operationsForResource,
+	type OperationQueryParameter,
 	type PathParameter,
 } from './operations';
 
-const apiOperationsWithBody = OPERATION_SPECS.filter(
-	(spec) => spec.kind === 'api' && Boolean(spec.body),
-).map((spec) => spec.value);
+const bodyOperations = OPERATION_SPECS.filter((spec) => spec.kind === 'api' && Boolean(spec.body));
 const revisionOperations = OPERATION_SPECS.filter((spec) => Boolean(spec.revisionSource)).map(
 	(spec) => spec.value,
 );
 const publishOperations = OPERATION_SPECS.filter((spec) => spec.publishQuery).map(
 	(spec) => spec.value,
 );
+const operationsWithQueryParameter = (parameter: OperationQueryParameter) =>
+	OPERATION_SPECS.filter((spec) => spec.queryParameters?.includes(parameter)).map(
+		(spec) => spec.value,
+	);
 
 const parameterCopy: Record<
 	PathParameter,
 	{ displayName: string; description: string; placeholder: string }
 > = {
 	linkId: {
-		displayName: 'Block ID',
-		description: 'The stable block ID returned by Get Many Blocks',
-		placeholder: 'portfolio-main',
+		displayName: 'Content Block ID',
+		description: 'The stable ID returned by Get Many Content Blocks',
+		placeholder: 'e.g. portfolio-main',
 	},
 	key: {
-		displayName: 'Text File Key',
-		description: 'The managed text-file key returned by Get Settings',
-		placeholder: 'robots.txt',
+		displayName: 'Public Text File Key',
+		description: 'The managed text-file key returned by Get Page Settings',
+		placeholder: 'e.g. robots.txt',
 	},
 	revision: {
-		displayName: 'Version Revision',
-		description: 'The numeric historical revision to restore',
-		placeholder: '42',
+		displayName: 'Published Version Number',
+		description:
+			'The previously published version to restore; this is not the current revision used for concurrency checking',
+		placeholder: 'e.g. 42',
 	},
 	productId: {
 		displayName: 'Product ID',
-		description: 'The Shop product ID',
-		placeholder: 'product_123',
+		description: 'The ID of the Shop product',
+		placeholder: 'e.g. product_123',
 	},
 	subscriberId: {
 		displayName: 'Subscriber ID',
-		description: 'The newsletter subscriber ID',
-		placeholder: 'subscriber_123',
+		description: 'The ID of the newsletter subscriber',
+		placeholder: 'e.g. subscriber_123',
 	},
 	campaignId: {
 		displayName: 'Campaign ID',
-		description: 'The newsletter campaign ID',
-		placeholder: 'campaign_123',
+		description: 'The ID of the newsletter campaign',
+		placeholder: 'e.g. campaign_123',
 	},
 	memberUid: {
-		displayName: 'Member UID',
-		description: 'The Firebase UID of the workspace member',
-		placeholder: 'firebase-user-uid',
+		displayName: 'Team Member ID',
+		description: 'The member ID returned by Get Members and Invitations',
+		placeholder: 'e.g. member_123',
 	},
 	invitationId: {
 		displayName: 'Invitation ID',
 		description: 'The pending workspace invitation ID',
-		placeholder: 'invitation_123',
-	},
-	prospectId: {
-		displayName: 'Prospect ID',
-		description: 'The operator CRM prospect ID',
-		placeholder: 'prospect_123',
-	},
-	activityId: {
-		displayName: 'Activity ID',
-		description: 'The CRM activity ID',
-		placeholder: 'activity_123',
-	},
-	promotionCodeId: {
-		displayName: 'Promotion Code ID',
-		description: 'The SHA-256 promotion-code ID returned by the operator API',
-		placeholder: 'sha256-id',
-	},
-	tenantId: {
-		displayName: 'Tenant ID',
-		description: 'The target OrbitPage tenant ID',
-		placeholder: 'tenant_123',
+		placeholder: 'e.g. invitation_123',
 	},
 };
+
+export function pathParameterDisplayName(parameter: PathParameter): string {
+	return parameterCopy[parameter].displayName;
+}
 
 const pathParameterProperties = (Object.keys(parameterCopy) as PathParameter[]).map(
 	(parameter): INodeProperties => ({
@@ -95,7 +85,9 @@ const pathParameterProperties = (Object.keys(parameterCopy) as PathParameter[]).
 		displayOptions: {
 			show: {
 				operation: OPERATION_SPECS.filter(
-					(spec) => spec.parameters?.includes(parameter) || (parameter === 'productId' && spec.kind === 'shopFileUpload'),
+					(spec) =>
+						spec.parameters?.includes(parameter) ||
+						(parameter === 'productId' && spec.kind === 'shopFileUpload'),
 				).map((spec) => spec.value),
 			},
 		},
@@ -120,6 +112,41 @@ const operationProperties = RESOURCE_OPTIONS.map(
 	}),
 );
 
+const operationHelpProperties = OPERATION_SPECS.map(
+	(spec): INodeProperties => ({
+		displayName: `Possible Effects: ${operationEffectLabel(spec.effect)}`,
+		name: `operationHelp${spec.value.charAt(0).toUpperCase()}${spec.value.slice(1)}`,
+		type: 'notice',
+		default: '',
+		description: `${spec.description}. Required scope: ${spec.scope ?? 'Depends on the API path'}.`,
+		displayOptions: {
+			show: {
+				operation: [spec.value],
+			},
+		},
+	}),
+);
+
+const bodyProperties = bodyOperations.map(
+	(spec): INodeProperties => ({
+		displayName: 'Request Body (JSON)',
+		name: 'jsonBody',
+		type: 'json',
+		default: '{}',
+		...(spec.body === 'required' ? { required: true } : {}),
+		description: `${operationBodyGuidance(spec.value) ?? 'Send the JSON value accepted by this operation.'} ${
+			spec.body === 'optional'
+				? 'Leave {} to use the operation default described above.'
+				: 'This request body is required.'
+		} Send the JSON value directly; do not wrap it in body or data`,
+		displayOptions: {
+			show: {
+				operation: [spec.value],
+			},
+		},
+	}),
+);
+
 export const orbitPageProperties: INodeProperties[] = [
 	{
 		displayName: 'Resource',
@@ -130,39 +157,28 @@ export const orbitPageProperties: INodeProperties[] = [
 		default: 'workspace',
 	},
 	...operationProperties,
+	...operationHelpProperties,
 	...pathParameterProperties,
+	...bodyProperties,
 	{
-		displayName: 'JSON Body',
-		name: 'jsonBody',
-		type: 'json',
-		default: '{}',
-		required: true,
-		description:
-			'Request body matching the operation schema in the OrbitPage OpenAPI document. Expressions can reference the current input item.',
-		displayOptions: {
-			show: {
-				operation: apiOperationsWithBody,
-			},
-		},
-	},
-	{
-		displayName: 'Revision Handling',
+		displayName: 'Revision Check',
 		name: 'revisionMode',
 		type: 'options',
 		options: [
 			{
-				name: 'Fetch Latest Automatically (Recommended)',
+				name: 'Use Latest Automatically (Recommended)',
 				value: 'auto',
-				description: 'Read the related resource immediately before writing and use its ETag',
+				description:
+					'Read the current revision immediately before writing to prevent stale updates',
 			},
 			{
-				name: 'Enter Manually',
+				name: 'Enter Revision Manually',
 				value: 'manual',
-				description: 'Use an ETag or numeric revision from an earlier node',
+				description: 'Use a revision or ETag from an earlier workflow step',
 			},
 		],
 		default: 'auto',
-		description: 'OrbitPage rejects revision-controlled writes without a current If-Match value',
+		description: 'Controls how the node prevents one workflow from overwriting newer changes',
 		displayOptions: {
 			show: {
 				operation: revisionOperations,
@@ -170,12 +186,12 @@ export const orbitPageProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'ETag or Revision',
-		name: 'revision',
+		displayName: 'Current Revision or ETag',
+		name: 'ifMatchRevision',
 		type: 'string',
 		default: '',
 		required: true,
-		placeholder: 'W/"42"',
+		placeholder: 'e.g. W/"42"',
 		description: 'The ETag or numeric revision returned by the latest related GET request',
 		displayOptions: {
 			show: {
@@ -185,12 +201,12 @@ export const orbitPageProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Publish Immediately',
+		displayName: 'Publish Changes Immediately',
 		name: 'publish',
 		type: 'boolean',
 		default: false,
 		description:
-			'Whether to add publish=1. Leave disabled to review the draft and publish once with the Publication resource.',
+			'Whether to publish these changes immediately. Leave disabled to keep them in the draft for review.',
 		displayOptions: {
 			show: {
 				operation: publishOperations,
@@ -198,7 +214,7 @@ export const orbitPageProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Reporting Window',
+		displayName: 'Analytics Period',
 		name: 'days',
 		type: 'options',
 		options: [
@@ -208,7 +224,7 @@ export const orbitPageProperties: INodeProperties[] = [
 		],
 		default: 30,
 		description: 'The requested reporting window. The workspace plan can apply a smaller limit.',
-		displayOptions: { show: { operation: ['getAnalytics'] } },
+		displayOptions: { show: { operation: operationsWithQueryParameter('days') } },
 	},
 	{
 		displayName: 'Backup Sections',
@@ -225,76 +241,63 @@ export const orbitPageProperties: INodeProperties[] = [
 		],
 		default: [],
 		description: 'Leave empty to export every supported section',
-		displayOptions: { show: { operation: ['exportBackup'] } },
+		displayOptions: { show: { operation: operationsWithQueryParameter('sections') } },
 	},
 	{
-		displayName: 'Refresh Stripe State',
-		name: 'refresh',
-		type: 'boolean',
-		default: false,
-		description: 'Whether to refresh Stripe Connect state before returning Shop data',
-		displayOptions: { show: { operation: ['getShop'] } },
-	},
-	{
-		displayName: 'Search',
-		name: 'search',
-		type: 'string',
-		default: '',
-		description: 'Optional operator search term',
-		displayOptions: { show: { operation: ['getOperatorOverview', 'listCrmProspects'] } },
-	},
-	{
-		displayName: 'Email Action',
-		name: 'emailAction',
+		displayName: 'Shop Read Mode',
+		name: 'shopReadMode',
 		type: 'options',
 		options: [
-			{ name: 'Onboarding Bundle', value: 'onboarding_bundle' },
-			{ name: 'Password Setup', value: 'password_setup' },
-			{ name: 'Verify Email', value: 'verify_email' },
-			{ name: 'Welcome Email', value: 'welcome_email' },
+			{
+				name: 'Automatic (Recommended)',
+				value: 'auto',
+				description:
+					'Return Shop data and let OrbitPage initialize missing private state or refresh stale Stripe status when needed',
+			},
+			{
+				name: 'Force Stripe Status Refresh',
+				value: 'force',
+				description: 'Request a Stripe status check before returning Shop data',
+			},
+			{
+				name: 'Read-Only Snapshot',
+				value: 'snapshot',
+				description:
+					'Return current stored Shop data without initializing state or contacting Stripe',
+			},
 		],
-		default: 'onboarding_bundle',
-		displayOptions: { show: { operation: ['previewCrmAccountEmail'] } },
+		default: 'auto',
+		description: 'Controls whether Get Shop Overview may perform provider or private-state work',
+		displayOptions: { show: { operation: operationsWithQueryParameter('refresh') } },
 	},
 	{
-		displayName: 'Email Locale',
-		name: 'emailLocale',
-		type: 'options',
-		options: [
-			{ name: 'English', value: 'en' },
-			{ name: 'Italian', value: 'it' },
-		],
-		default: 'it',
-		displayOptions: { show: { operation: ['previewCrmAccountEmail'] } },
-	},
-	{
-		displayName: 'Input Binary Field',
+		displayName: 'Input Binary Field Name',
 		name: 'binaryPropertyName',
 		type: 'string',
 		default: 'data',
 		required: true,
-		description: 'Name of the input binary field containing the file to upload',
+		description: 'Name of the incoming binary field that contains the file to upload',
 		displayOptions: {
 			show: { operation: ['uploadMediaBinary', 'uploadShopFileBinary'] },
 		},
 	},
 	{
-		displayName: 'Media Purpose',
+		displayName: 'Video Placement',
 		name: 'mediaPurpose',
 		type: 'options',
 		options: [
-			{ name: 'Background Video', value: 'background' },
-			{ name: 'Content Video', value: 'upload' },
+			{ name: 'Page Background', value: 'background' },
+			{ name: 'Content Block', value: 'upload' },
 		],
 		default: 'upload',
 		displayOptions: { show: { operation: ['uploadMediaBinary'] } },
 	},
 	{
-		displayName: 'Media Slot',
+		displayName: 'Video Slot ID',
 		name: 'mediaSlot',
 		type: 'string',
 		default: '',
-		placeholder: 'hero-video',
+		placeholder: 'e.g. hero-video',
 		description: 'Optional stable slot. Reusing a slot replaces its current asset safely.',
 		displayOptions: { show: { operation: ['uploadMediaBinary'] } },
 	},
@@ -313,13 +316,13 @@ export const orbitPageProperties: INodeProperties[] = [
 		displayOptions: { show: { operation: ['customRequest'] } },
 	},
 	{
-		displayName: 'Relative API Path',
+		displayName: 'API Path',
 		name: 'customPath',
 		type: 'string',
 		default: '/workspace',
 		required: true,
 		description:
-			'A relative path below /api/v1. Absolute URLs are rejected so the token cannot be forwarded to another host.',
+			'Relative public workspace path below /api/v1, such as /workspace. Absolute URLs and paths outside the public workspace API contract are rejected.',
 		displayOptions: { show: { operation: ['customRequest'] } },
 	},
 	{
@@ -336,16 +339,26 @@ export const orbitPageProperties: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		description: 'Optional JSON request body. It is ignored for GET requests.',
-		displayOptions: { show: { operation: ['customRequest'] } },
+		displayOptions: {
+			show: {
+				operation: ['customRequest'],
+				customMethod: ['DELETE', 'PATCH', 'POST', 'PUT'],
+			},
+		},
 	},
 	{
-		displayName: 'If-Match',
+		displayName: 'Revision or ETag (If-Match)',
 		name: 'customIfMatch',
 		type: 'string',
 		default: '',
-		placeholder: 'W/"42"',
+		placeholder: 'e.g. W/"42"',
 		description: 'Optional ETag or numeric revision for a custom revision-controlled write',
-		displayOptions: { show: { operation: ['customRequest'] } },
+		displayOptions: {
+			show: {
+				operation: ['customRequest'],
+				customMethod: ['DELETE', 'PATCH', 'POST', 'PUT'],
+			},
+		},
 	},
 	{
 		displayName: 'Options',
@@ -355,12 +368,12 @@ export const orbitPageProperties: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Include Response Headers and Status',
+				displayName: 'Include HTTP Response Details',
 				name: 'includeResponseHeaders',
 				type: 'boolean',
 				default: false,
 				description:
-					'Whether to return body, response headers and status code instead of only the response body',
+					'Whether to return body, headers, statusCode, and statusMessage instead of only the response body',
 			},
 		],
 	},

@@ -8,17 +8,25 @@ import type {
 	IPollFunctions,
 } from 'n8n-workflow';
 import { cronNodeOptions, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import { orbitPageApiRequest } from '../OrbitPage/transport';
+import { orbitPageApiRequest, type OrbitPageRequest } from '../OrbitPage/transport';
 import { resolveMainConnectionType } from '../shared/n8nCompatibility';
 
 const mainConnectionType = resolveMainConnectionType(NodeConnectionTypes);
 
-const eventPaths: Record<string, string> = {
-	workspaceRevisionChanged: '/workspace',
-	publicationChanged: '/publication',
-	domainChanged: '/domains',
-	shopChanged: '/shop',
+export const TRIGGER_REQUESTS: Record<string, OrbitPageRequest> = {
+	workspaceRevisionChanged: { method: 'GET', path: '/workspace' },
+	publicationChanged: { method: 'GET', path: '/publication' },
+	domainChanged: { method: 'GET', path: '/domains' },
+	shopChanged: { method: 'GET', path: '/shop', qs: { refresh: '0' } },
 };
+
+const eventNames: Record<string, string> = {
+	workspaceRevisionChanged: 'Page Draft Changed',
+	publicationChanged: 'Publishing Details Changed',
+	domainChanged: 'Custom Domain Status Changed',
+	shopChanged: 'Shop Changed',
+};
+const eventSubtitle = `={{(${JSON.stringify(eventNames)})[$parameter["event"]] || "Choose a trigger"}}`;
 
 function stableValue(value: unknown): unknown {
 	if (Array.isArray(value)) return value.map(stableValue);
@@ -32,7 +40,9 @@ function stableValue(value: unknown): unknown {
 	return value;
 }
 
-function observedValue(event: string, response: unknown): unknown {
+const volatileShopRecordFields = new Set(['createdAt', 'updatedAt', 'stripeStatusCheckedAt']);
+
+export function observedValue(event: string, response: unknown): unknown {
 	if (
 		event === 'workspaceRevisionChanged' &&
 		response &&
@@ -42,11 +52,32 @@ function observedValue(event: string, response: unknown): unknown {
 		const workspace = response as IDataObject;
 		return { revision: workspace.revision };
 	}
+	if (
+		event === 'shopChanged' &&
+		response &&
+		typeof response === 'object' &&
+		!Array.isArray(response)
+	) {
+		const shopResponse = response as IDataObject;
+		const shopRecord = shopResponse.shop;
+		if (shopRecord && typeof shopRecord === 'object' && !Array.isArray(shopRecord)) {
+			return {
+				...shopResponse,
+				shop: Object.fromEntries(
+					Object.entries(shopRecord as IDataObject).filter(
+						([key]) => !volatileShopRecordFields.has(key),
+					),
+				),
+			};
+		}
+	}
 	return response;
 }
 
 function fingerprint(value: unknown): string {
-	return createHash('sha256').update(JSON.stringify(stableValue(value))).digest('hex');
+	return createHash('sha256')
+		.update(JSON.stringify(stableValue(value)))
+		.digest('hex');
 }
 
 function outputValue(value: unknown): GenericValue {
@@ -63,10 +94,11 @@ export class OrbitPageTrigger implements INodeType {
 		},
 		group: ['trigger'],
 		version: 1,
-		subtitle: '={{$parameter["event"]}}',
-		description: 'Starts a workflow when selected OrbitPage state changes',
+		subtitle: eventSubtitle,
+		description:
+			'Starts a workflow when an OrbitPage draft, publication, custom domain, or Shop state changes',
 		defaults: { name: 'OrbitPage Trigger' },
-		usableAsTool: true,
+		usableAsTool: undefined,
 		inputs: [],
 		outputs: [mainConnectionType],
 		credentials: [{ name: 'orbitPageApi', required: true }],
@@ -78,59 +110,63 @@ export class OrbitPageTrigger implements INodeType {
 				type: 'fixedCollection',
 				typeOptions: { multipleValues: true, multipleValueButtonText: 'Add Poll Time' },
 				default: { item: [{ mode: 'everyMinute' }] },
-				description: 'Time at which polling should occur',
+				description: 'Times at which n8n checks OrbitPage for changes',
 				placeholder: 'Add Poll Time',
 				options: cronNodeOptions,
 			},
 			{
-				displayName: 'Event',
+				displayName: 'Trigger On',
 				name: 'event',
 				type: 'options',
 				options: [
 					{
-						name: 'Custom Domain Changed',
+						name: 'Custom Domain Status Changed',
 						value: 'domainChanged',
-						description: 'DNS requirements, verification or active domain changed',
+						description:
+							'DNS instructions, verification, or the active custom domain changed. Requires domains:read.',
 					},
 					{
-						name: 'Publication State Changed',
+						name: 'Publishing Details Changed',
 						value: 'publicationChanged',
-						description: 'Draft revision, published revision, status or public URL changed',
+						description:
+							'Draft revision, published revision, publishing status, or public URL changed. Requires publication:read.',
 					},
 					{
-						name: 'Shop State Changed',
+						name: 'Shop Changed',
 						value: 'shopChanged',
-						description: 'Products, commerce connection, appearance or publication state changed',
+						description:
+							'Products, orders, customers, Stripe connection, appearance, or Shop publishing state changed. Uses a read-only snapshot and requires shop:read.',
 					},
 					{
-						name: 'Workspace Revision Changed',
+						name: 'Page Draft Changed',
 						value: 'workspaceRevisionChanged',
-						description: 'The editable workspace revision changed',
+						description: 'The editable page revision changed. Requires workspace:read.',
 					},
 				],
 				default: 'workspaceRevisionChanged',
 			},
 			{
-				displayName: 'Emit Initial State',
+				displayName: 'Run on First Poll',
 				name: 'emitInitialState',
 				type: 'boolean',
 				default: false,
 				description:
-					'Whether the first production poll should emit the current state. Manual tests always return the current state.',
+					'Whether to run the workflow with the current state on the first production poll. Manual tests always return the current state.',
 			},
 		],
 	};
 
 	async poll(this: IPollFunctions): Promise<INodeExecutionData[][] | null> {
 		const event = String(this.getNodeParameter('event'));
-		const path = eventPaths[event];
-		if (!path) {
+		const request = TRIGGER_REQUESTS[event];
+		if (!request) {
 			throw new NodeOperationError(this.getNode(), `Unsupported OrbitPage trigger event: ${event}`);
 		}
-		const current = await orbitPageApiRequest(this, { method: 'GET', path });
+		const current = await orbitPageApiRequest(this, request);
 		const signature = fingerprint(observedValue(event, current));
 		const staticData = this.getWorkflowStaticData('node');
-		const previousSignature = typeof staticData.signature === 'string' ? staticData.signature : null;
+		const previousSignature =
+			typeof staticData.signature === 'string' ? staticData.signature : null;
 		const manual = this.getMode() === 'manual';
 		const emitInitialState = this.getNodeParameter('emitInitialState', false) === true;
 
@@ -142,6 +178,7 @@ export class OrbitPageTrigger implements INodeType {
 			this.helpers.returnJsonArray([
 				{
 					event,
+					eventName: eventNames[event] ?? event,
 					initial: previousSignature === null,
 					previousSignature,
 					currentSignature: signature,

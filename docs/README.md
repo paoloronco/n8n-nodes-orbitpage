@@ -8,17 +8,19 @@ reading the entire API catalog first.
 | Goal | Guide |
 | --- | --- |
 | Install the package and run a safe first request | [Getting started](guides/getting-started.md) |
+| Choose a resource, operation, request body, and output shape | [Getting started: build an operation](guides/getting-started.md#build-the-next-operation) |
 | Create tokens and choose the minimum scopes | [Credentials and scopes](guides/credentials-and-scopes.md) |
 | Handle `ETag`, conflicts, draft changes, and publishing | [Revisions and publishing](guides/revisions-and-publishing.md) |
 | Upload video or protected Shop files | [Binary uploads](guides/binary-uploads.md) |
-| Use AI and operator operations safely | [AI and operator safety](guides/ai-and-operator-safety.md) |
+| Use OrbitPage operations safely with AI | [AI safety](guides/ai-safety.md) |
 | Diagnose installation, HTTP, trigger, or upload failures | [Troubleshooting](guides/troubleshooting.md) |
 | Develop, test, and release the package | [Development and release](guides/development-and-release.md) |
 
 ## Reference
 
-- [Operation matrix](OPERATIONS.md) lists all 84 API operations and three n8n
-  convenience operations.
+- [Operation matrix](OPERATIONS.md) lists all 65 workspace API operations and
+  three n8n convenience operations with their method, path, scope, body
+  requirement, and revision source.
 - [Example workflows](../examples/README.md) explains how to import the checked-in
   examples safely.
 - [Contributing](../CONTRIBUTING.md) defines the pull-request expectations.

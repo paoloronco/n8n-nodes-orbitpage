@@ -1,20 +1,31 @@
 {
   "name": "n8n-nodes-orbitpage",
-  "version": "0.1.2",
-  "description": "n8n community nodes for the complete OrbitPage Automation REST API",
+  "version": "0.2.0",
+  "description": "Official OrbitPage community nodes for n8n website content, publishing, media, analytics, AI, Shop, domains, backups, and workflow triggers",
   "license": "MIT",
-  "homepage": "https://orbitpage.com/en-US/docs/api-tokens",
+  "homepage": "https://orbitpage.com/en-US/docs/api-tokens#integration",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
+    "n8n-node",
+    "n8n-nodes",
+    "n8n-community-node",
     "orbitpage",
     "automation",
+    "workflow",
+    "workflow-automation",
+    "website-automation",
     "website-builder",
-    "link-in-bio"
+    "link-in-bio",
+    "personal-website",
+    "content-management",
+    "publishing",
+    "api-integration"
   ],
   "author": {
     "name": "Paolo Ronco",
-    "email": "paolo.ronco2000@gmail.com"
+    "email": "contact@orbitpage.com",
+    "url": "https://orbitpage.com"
   },
   "repository": {
     "type": "git",
@@ -46,6 +57,9 @@
     "examples",
     "README.md",
     "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
     "LICENSE.md"
   ],
   "n8n": {

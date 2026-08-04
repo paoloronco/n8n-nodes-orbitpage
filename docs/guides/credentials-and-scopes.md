@@ -1,32 +1,32 @@
 # Credentials and scopes
 
-OrbitPage API tokens are bearer secrets bound to the account permissions and,
-for personal tokens, to a workspace. Store them only in n8n credentials.
+OrbitPage API tokens are bearer secrets bound to account permissions and a
+workspace. Store them only in n8n credentials.
 
-## Credential types
+## Credential fields
 
-| Token type in n8n | Created in | Intended use |
-| --- | --- | --- |
-| Personal Workspace Token | OrbitPage **Dashboard > Account > Personal API tokens** | Normal workspace automation |
-| Protected Operator Token | Protected OrbitPage operator console | Platform CRM, moderation, promotion, plan, and tenant operations |
+Create a personal token in OrbitPage under **Dashboard > Account > Personal API
+tokens**. The public n8n credential contains only these fields:
 
-Never attach an operator credential to a tenant workflow. Use a separate
-credential, workflow, owner, and expiration policy for elevated automation.
+| Field | Production value |
+| --- | --- |
+| OrbitPage API Token | The one-time `op_pat_...` secret copied from OrbitPage |
+| OrbitPage Base URL | `https://orbitpage.com` |
 
 ## Connection-test scopes
 
-The current credential tests are read operations:
+The credential test is a read operation:
 
-| Credential type | Test endpoint | Scope required by the test |
-| --- | --- | --- |
-| Personal Workspace Token | `GET /api/v1/workspace` | `workspace:read` |
-| Protected Operator Token | `GET /api/v1/operator/overview` | `operator:read` |
+| Test endpoint | Scope required by the test |
+| --- | --- |
+| `GET /api/v1/workspace` | `workspace:read` |
 
 This requirement applies to the n8n connection test even when the workflow's
-business operation only needs a different scope. For example, a valid token
-with only `theme:write` cannot pass the workspace connection test. Include the
-relevant test scope if operators must use n8n's **Test connection** action, and
-then keep every other granted scope minimal.
+business operation only needs a different scope. For example, a token created
+for `theme:write` also receives `theme:read`, but it still cannot pass the
+workspace connection test without `workspace:read`. Include the relevant test
+scope when the workflow owner must use **Test connection**, and keep every
+other granted scope minimal.
 
 ## Resource scopes
 
@@ -35,53 +35,56 @@ for individual operations.
 
 | Resource | Available scopes |
 | --- | --- |
-| Workspace | `workspace:read` |
-| Blocks and links | `links:read`, `links:write` |
+| Workspace & Draft | `workspace:read` |
+| Page Content (Blocks) | `links:read`, `links:write` |
 | Profile | `profile:read`, `profile:write` |
 | Theme | `theme:read`, `theme:write` |
-| Pages | `pages:read`, `pages:write` |
-| Settings | `settings:read`, `settings:write` |
+| Subpages | `pages:read`, `pages:write` |
+| Page Settings | `settings:read`, `settings:write` |
 | Publication | `publication:read`, `publication:write` |
-| Backups and versions | `backup:read`, `backup:write` |
-| Media | `media:read`, `media:write` |
-| Domains | `domains:read`, `domains:write` |
+| Backups & Versions | `backup:read`, `backup:write` |
+| Media Library | `media:read`, `media:write` |
+| Custom Domain & DNS | `domains:read`, `domains:write` |
 | Analytics | `analytics:read` |
-| AI | `ai:read`, `ai:write` |
+| AI Page Editing | `ai:read`, `ai:write` |
 | Shop | `shop:read`, `shop:write` |
 | Newsletter | `newsletter:read`, `newsletter:write` |
-| Team | `team:read`, `team:write` |
-| Billing | `billing:read`, `billing:write` |
-| Operator | `operator:read`, `operator:write` |
+| Team & Invitations | `team:read`, `team:write` |
+| Billing & Plans | `billing:read`, `billing:write` |
 
-Grant both read and write only when the workflow actually performs both. Do not
-assume a write scope automatically grants the corresponding read scope.
+Selecting a write scope automatically adds its matching read scope. The saved
+token summary shows both. Select only the write categories the workflow needs;
+do not add unrelated scopes.
 
-The **Advanced > Custom API Request** operation does not bypass authorization.
+The **Advanced API > Send Custom API Request** operation does not bypass
+authorization.
 The selected endpoint still enforces its own scope and all permissions held by
-the credential remain available to that request.
+the credential remain available to that request. It accepts only paths within
+the public workspace API contract.
 
 ## Trigger scopes
 
 | Trigger event | Required scope |
 | --- | --- |
-| Workspace Revision Changed | `workspace:read` |
-| Publication State Changed | `publication:read` |
-| Custom Domain Changed | `domains:read` |
-| Shop State Changed | `shop:read` |
+| Page Draft Changed | `workspace:read` |
+| Publishing Details Changed | `publication:read` |
+| Custom Domain Status Changed | `domains:read` |
+| Shop Changed | `shop:read` |
 
 Polling reads the endpoint at the configured schedule. It does not request
-extra write scopes.
+extra write scopes. **Shop Changed** uses `/shop?refresh=0`, so polling reads a
+snapshot without initializing Shop data or refreshing Stripe connection state.
 
-## Base URL
+## OrbitPage Base URL
 
-Use `https://orbitpage.com` for production. The node appends `/api/v1` itself,
-so do not include that suffix in the credential.
+Use `https://orbitpage.com` as **OrbitPage Base URL** in production. The node
+appends `/api/v1` itself, so do not include that suffix in the credential.
 
-Change the Base URL only when OrbitPage support supplies a dedicated staging
-environment. The bearer token is sent to the configured host. The node requires
-HTTPS except for `localhost`, `127.0.0.1`, or `::1`, rejects cross-origin
-credential redirects, and restricts authenticated requests to the configured
-hostname.
+Change **OrbitPage Base URL** only when OrbitPage support supplies a dedicated
+staging environment. Verify the host before selecting **Test connection** because the
+bearer token is sent to that URL. Authenticated action and trigger requests
+require HTTPS except for `localhost`, `127.0.0.1`, or `::1`, reject cross-origin
+credential redirects, and remain restricted to the configured hostname.
 
 ## Token lifecycle
 
@@ -100,12 +103,11 @@ cannot be recovered; replace it instead.
 
 ## Common authentication failures
 
-- `401 Unauthorized`: token missing, malformed, expired, revoked, or wrong token
-  type selected.
+- `401 Unauthorized`: token missing, malformed, expired, or revoked.
 - `403 Forbidden`: missing scope, lost workspace access, protected resource, or
   plan/account restriction.
-- HTML or repeated redirects instead of JSON: incorrect Base URL or reverse
-  proxy configuration.
+- HTML or repeated redirects instead of JSON: incorrect **OrbitPage Base URL**
+  or reverse proxy configuration.
 
 Continue with [Revisions and publishing](revisions-and-publishing.md) before
 building write workflows.

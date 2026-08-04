@@ -16,43 +16,28 @@ export class OrbitPageApi implements ICredentialType {
 		dark: 'file:../icons/orbitpage.dark.svg',
 	};
 
-	documentationUrl = 'https://orbitpage.com/en-US/docs/api-tokens';
+	documentationUrl = 'https://orbitpage.com/en-US/docs/api-tokens#integration';
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Token Type',
-			name: 'credentialKind',
-			type: 'options',
-			options: [
-				{
-					name: 'Personal Workspace Token',
-					value: 'workspace',
-				},
-				{
-					name: 'Protected Operator Token',
-					value: 'operator',
-				},
-			],
-			default: 'workspace',
-			description:
-				'Personal tokens are created in Dashboard > Account. Operator tokens are created only in the protected operator console.',
-		},
-		{
-			displayName: 'Personal API Token',
+			displayName: 'OrbitPage API Token',
 			name: 'accessToken',
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			placeholder: 'op_pat_...',
-			description: 'The scoped OrbitPage bearer token. It is stored encrypted by n8n.',
+			required: true,
+			placeholder: 'e.g. op_pat_...',
+			description: 'Paste the token shown once by OrbitPage. n8n stores it encrypted.',
 		},
 		{
-			displayName: 'Base URL',
+			displayName: 'OrbitPage Base URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: 'https://orbitpage.com',
+			required: true,
+			validateType: 'url',
 			description:
-				'Use the production URL unless OrbitPage support supplied a dedicated staging environment',
+				'Use https://orbitpage.com in production. Do not add /api/v1. Change this only when OrbitPage support provides another environment.',
 		},
 	];
 
@@ -68,9 +53,13 @@ export class OrbitPageApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl.replace(/\\/$/, "")}}',
-			url: '={{$credentials.credentialKind === "operator" ? "/api/v1/operator/overview" : "/api/v1/workspace"}}',
+			baseURL:
+				'={{/^(https:\\/\\/|http:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\])(?=[:/]|$))/i.test($credentials.baseUrl) ? $credentials.baseUrl.replace(/\\/$/, "") : "https://invalid.invalid"}}',
+			url: '/api/v1/workspace',
 			method: 'GET',
+			sendCredentialsOnCrossOriginRedirect: false,
+			allowedDomains:
+				'={{$credentials.baseUrl.replace(/^https?:\\/\\//i, "").replace(/\\/.*$/, "").replace(/:\\d+$/, "").replace(/^\\[|\\]$/g, "")}}',
 		},
 	};
 }

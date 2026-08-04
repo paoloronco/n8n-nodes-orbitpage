@@ -19,15 +19,17 @@ store them in workflow data, or send them to another service.
 
 ## Upload a video
 
-Choose **Media > Upload Video Binary** and configure:
+Choose **Media Library > Upload or Replace Video From Binary Input** and
+configure:
 
-- **Input Binary Field**: the n8n binary property, normally `data`;
-- **Purpose**: the intended OrbitPage media use;
-- **Slot**: an optional target slot when the operation exposes it.
+- **Input Binary Field Name**: the n8n binary property, normally `data`;
+- **Video Placement**: page background or content block;
+- **Video Slot ID**: an optional stable target slot.
 
 The convenience operation accepts `video/mp4` and `video/webm`. It uses the
 binary filename when available and otherwise creates an appropriate fallback
-filename.
+filename. If the selected placement and slot already contain a video, the
+finalization replaces that file reference.
 
 The sequence is:
 
@@ -41,25 +43,45 @@ with filename, content type, byte size, and reserved slot.
 
 ## Upload a protected Shop file
 
-Choose **Shop > Upload Product File Binary**, then provide:
+Choose **Shop > Upload or Replace Product File From Binary Input**, then
+provide:
 
 - the target product ID;
-- the input binary field, normally `data`.
+- **Input Binary Field Name**, normally `data`.
 
 The sequence is:
 
 1. `POST /shop/uploads/reserve`;
 2. direct signed `PUT` to storage;
-3. `POST /shop/uploads/finalize`.
+3. `POST /shop/uploads/finalize`;
+4. best-effort `DELETE /shop/uploads` if upload or finalization fails.
 
 The output adds `uploadedFile` metadata containing the product ID, filename,
 content type, and byte size. OrbitPage validates the product, file type, plan,
-and storage allowance.
+and storage allowance. If the product already has a protected file, finalizing
+the upload replaces its current file reference.
 
-Unlike the media convenience operation, the current Shop upload flow has no
-automatic abort request after a failed direct upload or finalization. A failed
-reservation should be allowed to expire, or be inspected through the supported
-Shop management flow before retrying.
+When the direct upload or finalization fails, the helper requests cancellation
+to clear the active reservation, release reserved storage, and remove staged
+data. Cleanup is best effort so the original upload error remains visible; an
+uncleared reservation also expires through OrbitPage's scheduled cleanup.
+
+## Advanced low-level operations
+
+Use the complete binary helpers above for normal n8n workflows. The following
+operations expose individual API stages for workflows that deliberately manage
+temporary upload URLs and tokens themselves:
+
+- **Media Library > Reserve Video Upload (Advanced)**,
+  **Finalize Reserved Video Upload (Advanced)**, and
+  **Cancel Reserved Video Upload (Advanced)**;
+- **Shop > Reserve Product File Upload (Advanced)** and
+  **Finalize or Replace Product File Upload (Advanced)**, plus
+  **Cancel Reserved Product File Upload (Advanced)**.
+
+Do not mix a complete binary helper with its low-level stages in the same
+upload. A reservation response contains short-lived sensitive values, and a
+successful reserve call alone does not register a usable file.
 
 ## Retry guidance
 

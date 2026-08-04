@@ -49,7 +49,8 @@ Run `npm run check` before opening a pull request.
 The package intentionally uses one programmatic action node. Although simple
 HTTP integrations can use a declarative node, OrbitPage also requires:
 
-- a typed catalog spanning 84 API operations;
+- a typed catalog spanning 65 workspace API operations and three n8n
+  convenience operations (68 operations total);
 - automatic revision preflight requests;
 - direct signed binary uploads;
 - per-input item linking and `Continue On Fail` behavior;
@@ -142,9 +143,25 @@ Releases are maintainer-only:
 7. The GitHub Publish workflow verifies main ancestry, runs the complete package
    check, inspects `npm pack --dry-run`, and publishes with npm Trusted
    Publishing/OIDC and provenance.
+8. After npm reports the new version, run the official community-package scan:
+
+   ```bash
+   npx --yes @n8n/scan-community-package n8n-nodes-orbitpage
+   ```
+
+9. Confirm the npm description, keywords, README, repository link, homepage,
+   provenance, and automatically created GitHub release all show the new
+   version.
+10. Once the published version passes the scan, submit or update the node in the
+    [n8n Creator Portal](https://creators.n8n.io/nodes) for verified in-editor
+    discovery.
 
 The workflow does not accept an `NPM_TOKEN` fallback. The npm package settings
 must trust `.github/workflows/publish.yml`; never commit or reintroduce a
 long-lived registry write token.
+
+GitHub's About description, website, topics, and social-preview image are
+repository settings rather than package files. Review them after a release so
+they remain aligned with the workspace-only public package.
 
 See [CONTRIBUTING.md](../../CONTRIBUTING.md) for the pull-request checklist.

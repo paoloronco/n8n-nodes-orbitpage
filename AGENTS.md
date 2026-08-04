@@ -7,7 +7,11 @@ repository. Instructions in this file apply to every file below this directory.
 
 - Keep this package independently buildable and publishable to npm.
 - Do not copy private OrbitPage SaaS code, internal architecture, credentials,
-  customer data, tenant data, or non-public operational details into this repo.
+  workspace data, subscriber data, or non-public operational details into this
+  repo.
+- Expose only workspace-facing operations from the public API. Hosted-control
+  capabilities belong in private automation and must not appear as resources,
+  operations, credential variants, examples, or generated documentation here.
 - Public API behavior may be documented from
   `https://orbitpage.com/api/openapi.json` and the public token guide.
 - The Git remote for this submodule is the public
@@ -22,7 +26,7 @@ repository. Instructions in this file apply to every file below this directory.
   extraction.
 - `nodes/OrbitPage/OrbitPage.node.ts`: action execution and compound uploads.
 - `nodes/OrbitPageTrigger/OrbitPageTrigger.node.ts`: polling behavior.
-- `credentials/OrbitPageApi.credentials.ts`: token types and connection tests.
+- `credentials/OrbitPageApi.credentials.ts`: token fields and connection test.
 - `package.json`: package entry points, versions, scripts, and published files.
 
 ## Generated files
@@ -61,8 +65,8 @@ Markdown links and confirm `npm run docs:check` remains clean.
 - Add behavioral tests for revisions, path substitution, transport, uploads,
   triggers, and credentials when those areas change.
 - Prefer a catalog entry and shared execution path over one-off code.
-- Treat destructive, publishing, email, billing, moderation, operator, and
-  AI-selected actions as high risk.
+- Treat destructive, publishing, email, billing, restore, and AI-selected
+  actions as high risk.
 
 ## Documentation rules
 
@@ -71,11 +75,12 @@ Markdown links and confirm `npm run docs:check` remains clean.
   `docs/README.md`.
 - Keep `examples/README.md` aligned with the checked-in workflow JSON.
 - Document the exact scope required by every operation or trigger.
-- State that credential tests require `workspace:read` or `operator:read`.
+- State that the credential test calls `GET /api/v1/workspace` and requires
+  `workspace:read`.
 - State that polling observes snapshots and may aggregate multiple changes
   between polls.
 - Use relative repository links and primary public external sources.
-- Never publish real tokens, credential IDs, signed URLs, or customer data.
+- Never publish real tokens, credential IDs, signed URLs, or user data.
 
 ## Compatibility and releases
 

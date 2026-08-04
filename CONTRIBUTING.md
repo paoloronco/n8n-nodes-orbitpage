@@ -2,7 +2,8 @@
 
 Thank you for improving the OrbitPage community nodes. This repository is
 public, so contributions must contain only information and code that can be
-published on GitHub and npm.
+published on GitHub and npm. By participating, you agree to follow the project
+[Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## Before you start
 

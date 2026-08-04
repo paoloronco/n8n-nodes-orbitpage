@@ -20,7 +20,7 @@ sharing them.
 ## Read workspace
 
 [`read-workspace.json`](read-workspace.json) contains a manual trigger followed
-by **Workspace > Get Workspace**.
+by **Workspace & Draft > Get Workspace Overview**.
 
 - Required scope: `workspace:read`
 - Data changes: none
@@ -32,11 +32,11 @@ usage, and revision data.
 ## Watch publication
 
 [`watch-publication.json`](watch-publication.json) contains an OrbitPage polling
-trigger configured for **Publication State Changed** every minute.
+trigger configured for **Publishing Details Changed** every minute.
 
 - Required scope: `publication:read`
 - Data changes: none
-- **Emit Initial State**: disabled
+- **Run on First Poll**: disabled
 
 A manual test returns the current publication state. After activation, the
 first production poll records a baseline without emitting. Later polls emit
@@ -46,6 +46,17 @@ This trigger is not an event log. If publication changes several times between
 polls, the workflow receives the latest observed state rather than every
 intermediate transition.
 
+## Understand the output
+
+The action example returns the OrbitPage API response as one n8n item. The
+trigger returns `event`, `eventName`, `initial`, change signatures,
+`observedAt`, and the current publication response under `data`.
+
+For action workflows, enabling **Include HTTP Response Details** changes
+the output to `body`, `headers`, and `statusCode`. Enabling **Continue On Fail**
+returns an `error` item for a failed input, so add an explicit downstream error
+branch before activating the workflow.
+
 ## Adapt safely
 
 - Duplicate the example before adding write operations.
@@ -54,5 +65,5 @@ intermediate transition.
   adding permissions.
 - Read [Revisions and publishing](../docs/guides/revisions-and-publishing.md)
   before changing draft or public content.
-- Require human review before publish, restore, delete, email, billing,
-  moderation, or AI-selected actions.
+- Require human review before publish, restore, delete, email, billing, or
+  AI-selected actions.

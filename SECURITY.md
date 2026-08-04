@@ -7,7 +7,7 @@ issue when a report contains or could expose:
 
 - API tokens or authorization headers;
 - signed upload URLs or upload tokens;
-- tenant, workspace, customer, or subscriber data;
+- workspace, subscriber, or other personal data;
 - unpublished exploit details;
 - sensitive n8n execution payloads.
 
@@ -23,21 +23,20 @@ have been coordinated with the maintainers.
 
 ## Security boundaries
 
-OrbitPage personal and operator API tokens are bearer secrets. The n8n
-credential encrypts stored values, but a workflow can perform every operation
-allowed by its selected token.
+OrbitPage personal API tokens are bearer secrets. The n8n credential encrypts
+stored values, but a workflow can perform every operation allowed by its
+selected token.
 
 - Use one token per workflow and environment.
 - Grant the smallest required scopes and prefer finite expiration.
-- Keep operator credentials separate from tenant workflows and projects.
 - Do not store tokens in workflow JSON, expressions, logs, screenshots, issue
   attachments, or example files.
 - Do not log signed upload URLs, authorization headers, or sensitive response
   bodies.
 - Change the Base URL only for an OrbitPage-provided staging environment. The
   bearer token is sent to the configured host.
-- Require human review before destructive, publishing, email, billing,
-  moderation, restore, or AI-selected actions.
+- Require human review before destructive, publishing, email, billing, restore,
+  or AI-selected actions.
 - Revoke a token immediately after suspected disclosure.
 
 The action node rejects non-local HTTP Base URLs, prevents credential forwarding
@@ -45,7 +44,7 @@ across cross-origin redirects, constrains authenticated requests to the
 configured hostname, and uploads binary data to signed storage URLs without the
 OrbitPage bearer token.
 
-These controls do not replace secure n8n administration. Restrict access to
+These controls do not replace secure n8n operations. Restrict access to
 credentials, projects, execution data, logs, backups, and the host running n8n.
 
 ## Dependency and release integrity

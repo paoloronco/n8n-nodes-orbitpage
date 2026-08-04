@@ -1,8 +1,7 @@
 # Troubleshooting
 
 Start with the smallest non-destructive request that exercises the same
-credential boundary: **Workspace > Get Workspace** for a personal token or
-**Operator > Get Overview** for an operator token.
+credential boundary: **Workspace & Draft > Get Workspace Overview**.
 
 ## Class could not be found
 
@@ -21,12 +20,8 @@ process restarts.
 
 ## Credential test fails
 
-The credential test is not scope-neutral:
-
-- a Personal Workspace Token test calls `GET /api/v1/workspace` and requires
-  `workspace:read`;
-- a Protected Operator Token test calls `GET /api/v1/operator/overview` and
-  requires `operator:read`.
+The credential test is not scope-neutral: it calls `GET /api/v1/workspace` and
+requires `workspace:read`.
 
 A token that is valid for a different operation can fail **Test connection** if
 it lacks the relevant read scope. See
@@ -46,10 +41,10 @@ cross-origin redirect.
 | Status | Likely cause | Resolution |
 | --- | --- | --- |
 | `400 Bad Request` | Invalid JSON or unsupported fields. | Compare the body with the public API contract and use a guided operation. |
-| `401 Unauthorized` | Missing, malformed, expired, or revoked token; wrong token type. | Create a replacement token and select the matching credential type. |
+| `401 Unauthorized` | Missing, malformed, expired, or revoked token. | Create a replacement token and update the OrbitPage credential. |
 | `403 Forbidden` | Missing scope, lost workspace access, protected resource, or plan restriction. | Check the operation matrix, account access, and workspace plan. |
 | `404 Not Found` | Incorrect identifier or custom relative path. | Read the resource again and pass the returned stable ID. |
-| `409 Conflict` | A newer workspace revision exists. | Read the current state and intentionally reapply the change. |
+| `409 Conflict` | Either the workspace revision is stale or a business rule prevents the operation. | For `error.code: revision_conflict`, read the current state and intentionally reapply the change. For every other code, resolve the documented business condition before retrying. |
 | `413 Payload Too Large` | Body or upload exceeds the route limit. | Reduce the payload or use the intended direct-upload operation. |
 | `415 Unsupported Media Type` | Unsupported request or binary content type. | Use an accepted media type and uncompressed JSON requests. |
 | `428 Precondition Required` | Missing `If-Match` on a revision-controlled write. | Enable automatic revision fetching or pass the current value manually. |
@@ -59,15 +54,14 @@ When **Continue On Fail** is enabled, the node returns an error item linked to
 the failing input instead of stopping the workflow. Downstream nodes must check
 that output explicitly.
 
-## Revision conflicts and Restore Version
+## Revision conflicts and historical restore
 
-Use **Fetch Latest Automatically** for normal revision-controlled writes. A
-manual revision should come from a preceding read in the same workflow path.
-
-Package 0.1.2 has a known limitation in **Backup > Restore Version**: the
-historical version field and manual `If-Match` field share the same internal
-parameter name. Use automatic revision mode for this operation until a later
-package release fixes the field.
+Use **Use Latest Automatically (Recommended)** for normal revision-controlled
+writes. **Published Version Number** selects the history entry used by
+**Backups & Versions > Restore and Publish Historical Version**. **Current
+Revision or ETag** is a separate concurrency value and should come from a
+preceding read in the same workflow path when manual checking is necessary.
+The restore publishes immediately, so approve the target before the node runs.
 
 See [Revisions and publishing](revisions-and-publishing.md) for the full model.
 
@@ -79,7 +73,8 @@ Check all of the following:
 - a Poll Time is configured;
 - the token has the trigger's read scope;
 - the monitored state actually changed after the first production poll;
-- **Emit Initial State** is enabled if the baseline itself should be emitted.
+- **Run on First Poll** is enabled if the baseline itself should run the
+  workflow.
 
 A manual test always returns the current state. In production, the first poll
 normally records a baseline without emitting. The trigger compares snapshots;
@@ -105,10 +100,12 @@ From a trusted shell, test the same personal-token boundary without printing
 the token:
 
 ```bash
-export ORBITPAGE_TOKEN='op_pat_...'
+read -rsp 'OrbitPage API token: ' ORBITPAGE_TOKEN
+printf '\n'
 curl --silent --show-error --include \
   --header "Authorization: Bearer $ORBITPAGE_TOKEN" \
   https://orbitpage.com/api/v1/workspace
+unset ORBITPAGE_TOKEN
 ```
 
 A JSON `401`, `403`, or `429` response is an actionable API result. An HTML
@@ -125,5 +122,5 @@ Share:
 - whether the failure is reproducible with a non-destructive request.
 
 Never share the token, `Authorization` header, signed upload URL, full sensitive
-response body, or tenant/customer data in a public issue. Report suspected
+response body, or workspace/subscriber data in a public issue. Report suspected
 vulnerabilities through [SECURITY.md](../../SECURITY.md).
