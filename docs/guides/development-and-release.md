@@ -142,7 +142,7 @@ Releases are maintainer-only:
    fields in `package-lock.json`.
 7. The GitHub Publish workflow verifies main ancestry, runs the complete package
    check, inspects `npm pack --dry-run`, and invokes the official n8n release
-   command with npm Trusted Publishing/OIDC and provenance.
+   command with npm authentication and GitHub OIDC provenance.
 8. After npm reports the new version, run the official community-package scan:
 
    ```bash
@@ -156,9 +156,10 @@ Releases are maintainer-only:
     [n8n Creator Portal](https://creators.n8n.io/nodes) for verified in-editor
     discovery.
 
-The workflow does not accept an `NPM_TOKEN` fallback. The npm package settings
-must trust `.github/workflows/publish.yml`; never commit or reintroduce a
-long-lived registry write token.
+The workflow currently authenticates with the repository's `NPM_TOKEN` secret
+and signs provenance through GitHub OIDC. Replace the token with npm Trusted
+Publishing for `.github/workflows/publish.yml` when the package setting is
+configured; never commit registry credentials.
 
 GitHub's About description, website, topics, and social-preview image are
 repository settings rather than package files. Review them after a release so
