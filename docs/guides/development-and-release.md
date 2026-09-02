@@ -141,8 +141,8 @@ Releases are maintainer-only:
 6. Confirm the pushed `X.Y.Z` tag exactly matches `package.json` and both version
    fields in `package-lock.json`.
 7. The GitHub Publish workflow verifies main ancestry, runs the complete package
-   check, inspects `npm pack --dry-run`, and publishes with npm Trusted
-   Publishing/OIDC and provenance.
+   check, inspects `npm pack --dry-run`, and invokes the official n8n release
+   command with npm Trusted Publishing/OIDC and provenance.
 8. After npm reports the new version, run the official community-package scan:
 
    ```bash

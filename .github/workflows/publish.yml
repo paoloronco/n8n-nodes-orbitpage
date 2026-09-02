@@ -60,7 +60,7 @@ jobs:
       - name: Inspect published files
         run: npm pack --dry-run
       - name: Publish with npm Trusted Publishing
-        run: npm publish --access public
+        run: npm run release
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
