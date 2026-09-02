@@ -95,15 +95,13 @@ const pathParameterProperties = (Object.keys(parameterCopy) as PathParameter[]).
 );
 
 const operationProperties = RESOURCE_OPTIONS.map(
-	// Each generated resource selector has a concrete first-operation default.
-	// eslint-disable-next-line n8n-nodes-base/node-param-default-missing
 	(resource): INodeProperties => ({
 		displayName: 'Operation',
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
 		options: operationsForResource(String(resource.value)),
-		default: operationsForResource(String(resource.value))[0]?.value ?? '',
+		default: String(operationsForResource(String(resource.value))[0]?.value ?? ''),
 		displayOptions: {
 			show: {
 				resource: [resource.value],

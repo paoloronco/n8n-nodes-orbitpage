@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-orbitpage",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Official OrbitPage community nodes for n8n website content, publishing, media, analytics, AI, Shop, domains, backups, and workflow triggers",
   "license": "MIT",
   "homepage": "https://orbitpage.com/en-US/docs/api-tokens#integration",

@@ -4,6 +4,13 @@ All notable changes to this package are documented here.
 
 ## Unreleased
 
+## 0.2.1 - 2026-09-02
+
+### Fixed
+
+- Make generated operation defaults statically recognizable by the official
+  n8n community-package scanner without changing their runtime values.
+
 ## 0.2.0 - 2026-09-02
 
 ### Breaking changes
