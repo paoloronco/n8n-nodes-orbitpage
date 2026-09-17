@@ -76,7 +76,7 @@ and recovery steps for partial installations.
 
 ## End-to-end quick start
 
-1. In OrbitPage, open **Dashboard > Account > Personal API tokens**.
+1. In OrbitPage, open **Dashboard > Team > Personal API tokens**.
 2. Create a token for this workflow with `workspace:read` for the initial
    connection test and first safe read.
 3. In n8n, create an **OrbitPage API** credential with:

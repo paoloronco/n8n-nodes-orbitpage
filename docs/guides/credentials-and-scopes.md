@@ -5,7 +5,7 @@ workspace. Store them only in n8n credentials.
 
 ## Credential fields
 
-Create a personal token in OrbitPage under **Dashboard > Account > Personal API
+Create a personal token in OrbitPage under **Dashboard > Team > Personal API
 tokens**. The public n8n credential contains only these fields:
 
 | Field | Production value |

@@ -36,7 +36,7 @@ entire n8n data directory. Follow the targeted recovery steps in
 
 ## Create the first token
 
-1. In OrbitPage, open **Dashboard > Account > Personal API tokens**.
+1. In OrbitPage, open **Dashboard > Team > Personal API tokens**.
 2. Create a token for this workflow and environment.
 3. Grant `workspace:read` for the first connection test and safe read.
 4. Use a finite expiration appropriate for the workflow.
