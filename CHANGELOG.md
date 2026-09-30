@@ -6,6 +6,7 @@ All notable changes to this package are documented here.
 
 ### Fixed
 
+- Refresh development dependencies and patched transitive packages while retaining the strict community-node checks.
 - Point token setup instructions to Dashboard > Team, where personal API tokens are managed.
 
 ## 0.2.1 - 2026-09-02
