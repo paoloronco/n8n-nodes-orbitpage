@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here.
 
+## 0.3.1 - 2026-10-04
+
+### Fixed
+
+- Use the current n8n Marketing & Content category for both nodes so the published package passes the community-package scan.
+
 ## 0.3.0 - 2026-10-04
 
 ### Breaking changes
