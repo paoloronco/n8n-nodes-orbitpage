@@ -2,7 +2,11 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 0.3.0 - 2026-10-04
+
+### Breaking changes
+
+- Page and Shop publication, newsletter delivery, and media deletion now require an Approved State ETag from a reviewed read or dry run. Existing workflows using these actions must supply the new field before they can run successfully against the hosted API.
 
 ### Fixed
 
