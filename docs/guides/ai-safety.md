@@ -55,7 +55,10 @@ Require explicit human review before operations that can:
 - change billing or plan state.
 
 Use read-only previews where available. Show the reviewer the exact target,
-request body, and expected effect before execution.
+request body, approved state tag, and expected effect before execution. For
+page and Shop publication, campaign delivery, and media deletion, pass that
+same tag to **Approved State ETag**. If the state changes before execution, the
+API rejects the effect and the new state must be reviewed.
 
 ## Custom API requests
 

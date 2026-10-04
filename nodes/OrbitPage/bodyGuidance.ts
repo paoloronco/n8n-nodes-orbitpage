@@ -18,7 +18,7 @@ const BODY_GUIDANCE: Readonly<Record<string, string>> = {
 	updateTextFile:
 		'Send content only, up to 50,000 characters and within the 128 KB total TXT allowance. Public Text File Key selects the file that changes immediately.',
 	cleanupMedia:
-		'Leave empty to preview unused media. Set dryRun to false only when you intend to delete the reported files permanently.',
+		'Leave empty to preview up to 50 unused media objects and obtain reviewTag. After reviewing the exact candidates, set dryRun to false and provide that reviewTag as Approved State ETag. Changed or larger sets are rejected.',
 	reserveMediaUpload:
 		'Send filename, sizeBytes, and contentType as video/mp4 or video/webm. The filename must end in .mp4 or .webm to match contentType; sizeBytes must be a positive integer within the workspace plan and 100 MB direct-upload limits. purpose accepts upload or background; slot is optional.',
 	finalizeMediaUpload:
@@ -48,7 +48,7 @@ const BODY_GUIDANCE: Readonly<Record<string, string>> = {
 	saveNewsletterCampaign:
 		'Send name, subject, and content. Content requires headline, body, accentColor, backgroundColor, and contentColor; add campaignId to update an existing draft.',
 	sendNewsletterCampaign:
-		'Leave the body empty, omit scheduledFor, or set scheduledFor to null to send immediately. To schedule, send only scheduledFor as an RFC 3339 date-time string with an explicit Z or numeric timezone offset; additional fields are rejected.',
+		'Review campaign content and audience in Get Newsletter Overview, then enter that campaign\'s reviewTag as Approved State ETag. Leave the body empty, omit scheduledFor, or set scheduledFor to null to send immediately. To schedule, send only scheduledFor as an RFC 3339 date-time string with an explicit Z or numeric timezone offset; additional fields are rejected.',
 	createTeamInvitation:
 		'Send email and role. Supported roles are admin, profile_editor, and analytics_viewer.',
 	updateTeamMember:

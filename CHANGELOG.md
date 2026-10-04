@@ -6,6 +6,9 @@ All notable changes to this package are documented here.
 
 ### Fixed
 
+- Bound Advanced API path decoding work and reject excessively nested or long paths.
+- Enforce video and Shop file size limits before materializing inline binaries, and bound reads from stored binary streams.
+- Require a previously reviewed state ETag for page and Shop publication, newsletter delivery, and media deletion; reject stale approvals through the Automation API.
 - Refresh development dependencies and patched transitive packages while retaining the strict community-node checks.
 - Point token setup instructions to Dashboard > Team, where personal API tokens are managed.
 

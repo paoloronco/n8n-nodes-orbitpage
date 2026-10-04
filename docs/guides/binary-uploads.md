@@ -91,8 +91,9 @@ successful reserve call alone does not register a usable file.
   file, scope, or plan condition.
 - For `429 Too Many Requests`, wait for `Retry-After` and use exponential
   backoff with jitter.
-- Confirm the n8n worker has enough memory for the binary because the node reads
-  it into a buffer before upload.
+- Confirm the n8n worker has enough memory for the binary. The node caps video
+  inputs at 100 MiB and protected Shop files at 50 MiB, then buffers accepted
+  files for the signed upload.
 - Keep the reserve, upload, and finalize steps in one execution unless a custom
   workflow has a specific reason to use the lower-level API operations.
 

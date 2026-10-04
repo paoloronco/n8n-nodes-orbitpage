@@ -20,6 +20,10 @@ Automatic mode protects an individual request from using an old revision. It
 does not make a multi-step workflow transactional: another writer can still
 change the workspace between separate n8n nodes.
 
+Publication, Shop publication, newsletter delivery, and media deletion use
+**Approved State ETag** instead. The node never fetches a new tag for these
+actions at execution time, because that would replace the state a reviewer saw.
+
 ## Manual revision mode
 
 Choose **Enter Revision Manually** when an earlier step deliberately read the
@@ -39,6 +43,23 @@ needs the exact `ETag`. The output then includes:
 Pass the current `ETag` or numeric revision to **Current Revision or ETag**. Do
 not cache it for later workflow executions.
 
+## Reviewed effects
+
+Before one of these effects, review the named response and pass its tag unchanged
+to **Approved State ETag** on the effect node:
+
+| Effect | Review source |
+| --- | --- |
+| Publish Current Draft | `ETag` from Get Draft and Publication Status with response details enabled |
+| Publish Shop | `reviewTag` or `ETag` from Get Shop Overview in Read-Only Snapshot mode |
+| Queue newsletter campaign | That campaign's `reviewTag` from Get Newsletter Overview |
+| Delete unused media | `reviewTag` from Preview or Delete Unused Media with `dryRun` true; review all candidates first |
+
+Media cleanup previews need no tag. Deletion is refused when the previewed set
+changes or contains more than 50 objects. Re-read and re-approve after a
+conflict. Existing workflows that invoke these effects without an approved tag
+must be updated; the API returns `428` for a missing tag.
+
 > Package 0.1.2 limitation: the operation labelled **Backups & Versions >
 > Restore Saved Version to Draft** in that release has an ambiguous manual
 > revision input because the historical version and `If-Match` fields share the
@@ -51,8 +72,9 @@ not cache it for later workflow executions.
 | Status | Meaning | Safe response |
 | --- | --- | --- |
 | `409 Conflict` with `error.code: revision_conflict` | The workspace advanced after the supplied revision was read. | Read the resource again, compare the new state, and intentionally reapply the change. |
+| `409 Conflict` with `error.code: reviewed_state_conflict` | The approved Shop, campaign, or media set changed. | Review the new state and use its new tag. |
 | Other `409 Conflict` | A business rule prevents the operation in its current state. | Resolve the documented condition identified by `error.code`; do not treat it as a stale-revision retry. |
-| `428 Precondition Required` | A protected write did not include `If-Match`. | Use automatic mode or pass the current revision manually. |
+| `428 Precondition Required` | A protected write did not include `If-Match`. | For reviewed effects, pass the tag that was approved; for other revisioned writes, use automatic or manual mode. |
 
 Do not blindly retry the same stale body. A retry is safe only after the
 workflow has considered changes made by another user or automation.
@@ -68,7 +90,7 @@ A safer multi-change workflow is:
 1. Read the current state.
 2. Apply related draft changes with automatic revision fetching.
 3. Validate the resulting draft.
-4. Publish once with **Publication > Publish Current Draft**.
+4. Review the final draft and pass the publication `ETag` to **Publication > Publish Current Draft**.
 
 **Page Content (Blocks) > Update One Content Block** and **Replace All Content
 Blocks** publish immediately by API design. Treat them as public changes even

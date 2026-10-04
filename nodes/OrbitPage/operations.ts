@@ -78,6 +78,7 @@ export type OperationSpec = {
 	parameters?: PathParameter[];
 	queryParameters?: OperationQueryParameter[];
 	revisionSource?: string;
+	reviewRequired?: boolean;
 	publishQuery?: boolean;
 	successStatus?: 200 | 201;
 };
@@ -98,6 +99,7 @@ const api = (
 			| 'parameters'
 			| 'queryParameters'
 			| 'revisionSource'
+			| 'reviewRequired'
 			| 'publishQuery'
 			| 'successStatus'
 			| 'effect'
@@ -453,7 +455,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'POST',
 		'/publication',
 		'publication:write',
-		{ effect: 'public' },
+		{ effect: 'public', reviewRequired: true },
 	),
 
 	api(
@@ -475,7 +477,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'POST',
 		'/media/cleanup',
 		'media:write',
-		{ body: 'optional', effect: ['read', 'destructive'] },
+		{ body: 'optional', effect: ['read', 'destructive'], reviewRequired: true },
 	),
 	{
 		resource: 'media',
@@ -679,7 +681,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'POST',
 		'/shop/publish',
 		'shop:write',
-		{ effect: ['external', 'public'] },
+		{ effect: ['external', 'public'], reviewRequired: true },
 	),
 	api(
 		'shop',
@@ -822,7 +824,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'POST',
 		'/newsletter/campaigns/{campaignId}/send',
 		'newsletter:write',
-		{ body: 'optional', parameters: ['campaignId'], effect: 'external' },
+		{ body: 'optional', parameters: ['campaignId'], effect: 'external', reviewRequired: true },
 	),
 	api(
 		'newsletter',

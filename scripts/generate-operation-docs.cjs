@@ -49,6 +49,9 @@ function requiredInput(spec) {
 		const guidance = operationBodyGuidance(spec.value) || 'Send the operation request body.';
 		inputs.push(spec.body === 'optional' ? `Optional body: ${guidance}` : `Body: ${guidance}`);
 	}
+	if (spec.reviewRequired) {
+		inputs.push(spec.value === 'cleanupMedia' ? 'Approved State ETag for deletion' : 'Approved State ETag');
+	}
 	return inputs.length ? inputs.join(' + ') : 'None';
 }
 
@@ -65,6 +68,7 @@ const lines = [
 	'The names below match the labels shown in the n8n editor. **Possible effects** tells you whether an operation only reads data, changes a draft or private setting, changes public content, has an external side effect, deletes or replaces data, or sends an advanced request. More than one label can apply.',
 	'',
 	'All API paths are relative to `/api/v1`. Guided operations authenticate with the selected **OrbitPage API** credential. Operations marked with a revision source can automatically read that endpoint and send its latest `ETag` or revision as `If-Match`.',
+	'Publication, Shop publication, newsletter delivery, and media deletion require an ETag from the exact state that was reviewed. The node never fetches a replacement ETag automatically for these actions.',
 	'',
 ];
 

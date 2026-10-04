@@ -19,6 +19,11 @@ import {
 } from './operations';
 import { fullResponse, orbitPageApiRequest, responseRevision } from './transport';
 import { resolveMainConnectionType } from '../shared/n8nCompatibility';
+import {
+	boundedBinaryBuffer,
+	MAX_MEDIA_UPLOAD_BYTES,
+	MAX_SHOP_FILE_UPLOAD_BYTES,
+} from './boundedBinary';
 
 const mainConnectionType = resolveMainConnectionType(NodeConnectionTypes);
 const operationSubtitle = `={{(${JSON.stringify(
@@ -76,6 +81,11 @@ function fullResponseOutput(response: IN8nHttpFullResponse): IDataObject {
 }
 
 function safeCustomPath(context: IExecuteFunctions, itemIndex: number, value: string): string {
+	if (value.length > 4096) {
+		throw new NodeOperationError(context.getNode(), 'API Path must be at most 4096 characters', {
+			itemIndex,
+		});
+	}
 	const path = value.trim();
 	if (!path.startsWith('/') || path.startsWith('//')) {
 		throw new NodeOperationError(context.getNode(), 'API Path must begin with one slash', {
@@ -103,7 +113,7 @@ function safeCustomPath(context: IExecuteFunctions, itemIndex: number, value: st
 	const normalizedSegments: string[] = [];
 	for (const rawSegment of path.replace(/\\/g, '/').split('/')) {
 		let decodedSegment = rawSegment;
-		while (true) {
+		for (let decodingPass = 0; ; decodingPass++) {
 			let decoded: string;
 			try {
 				decoded = decodeURIComponent(decodedSegment);
@@ -118,6 +128,11 @@ function safeCustomPath(context: IExecuteFunctions, itemIndex: number, value: st
 				break;
 			}
 			if (decoded === decodedSegment) break;
+			if (decodingPass >= 7) {
+				throw new NodeOperationError(context.getNode(), 'API Path has too many encoding layers', {
+					itemIndex,
+				});
+			}
 			decodedSegment = decoded;
 		}
 		normalizedSegments.push(
@@ -200,6 +215,15 @@ async function revisionHeader(
 	spec: OperationSpec,
 	itemIndex: number,
 ): Promise<string | undefined> {
+	if (spec.reviewRequired) {
+		const approvedTag = String(context.getNodeParameter('reviewedStateTag', itemIndex, '')).trim();
+		if (!approvedTag) {
+			throw new NodeOperationError(context.getNode(), 'Approved State ETag is required for this action', {
+				itemIndex,
+			});
+		}
+		return approvedTag;
+	}
 	if (!spec.revisionSource) return undefined;
 	const revisionMode = context.getNodeParameter('revisionMode', itemIndex, 'auto') as string;
 	if (revisionMode === 'manual') {
@@ -284,7 +308,6 @@ async function uploadMediaBinary(
 		context.getNodeParameter('binaryPropertyName', itemIndex, 'data'),
 	);
 	const binary = context.helpers.assertBinaryData(itemIndex, binaryPropertyName);
-	const buffer = await context.helpers.getBinaryDataBuffer(itemIndex, binary);
 	const contentType = binary.mimeType;
 	if (!['video/mp4', 'video/webm'].includes(contentType)) {
 		throw new NodeOperationError(
@@ -293,6 +316,7 @@ async function uploadMediaBinary(
 			{ itemIndex },
 		);
 	}
+	const buffer = await boundedBinaryBuffer(context, itemIndex, binary, MAX_MEDIA_UPLOAD_BYTES);
 	const filename =
 		binary.fileName || `orbitpage-video.${contentType === 'video/mp4' ? 'mp4' : 'webm'}`;
 	const slot = String(context.getNodeParameter('mediaSlot', itemIndex, '')).trim();
@@ -358,7 +382,7 @@ export async function uploadShopFileBinary(
 		context.getNodeParameter('binaryPropertyName', itemIndex, 'data'),
 	);
 	const binary = context.helpers.assertBinaryData(itemIndex, binaryPropertyName);
-	const buffer = await context.helpers.getBinaryDataBuffer(itemIndex, binary);
+	const buffer = await boundedBinaryBuffer(context, itemIndex, binary, MAX_SHOP_FILE_UPLOAD_BYTES);
 	const filename = binary.fileName || 'orbitpage-product-file';
 	const contentType = binary.mimeType || 'application/octet-stream';
 	const reservation = reservationObject(
@@ -491,21 +515,18 @@ export class OrbitPage implements INodeType {
 				else if (spec.kind === 'custom')
 					response = await customRequest(this, itemIndex, includeResponseHeaders);
 				else {
-					const revision = await revisionHeader(this, spec, itemIndex);
+					const body = spec.body
+						? parseJson(this, itemIndex, this.getNodeParameter('jsonBody', itemIndex, '{}'), 'Request Body (JSON)')
+						: undefined;
+					const cleanupPreview =
+						spec.value === 'cleanupMedia' &&
+						(!body || typeof body !== 'object' || !('dryRun' in body) || body.dryRun !== false);
+					const revision = cleanupPreview ? undefined : await revisionHeader(this, spec, itemIndex);
 					response = await orbitPageApiRequest(this, {
 						method: spec.method as OrbitPageMethod,
 						path: operationPath(this, spec, itemIndex),
 						qs: operationQuery(this, spec, itemIndex),
-						...(spec.body
-							? {
-									body: parseJson(
-										this,
-										itemIndex,
-										this.getNodeParameter('jsonBody', itemIndex, '{}'),
-										'Request Body (JSON)',
-									),
-								}
-							: {}),
+						...(spec.body ? { body } : {}),
 						...(revision ? { headers: { 'If-Match': revision } } : {}),
 						returnFullResponse: includeResponseHeaders,
 					});

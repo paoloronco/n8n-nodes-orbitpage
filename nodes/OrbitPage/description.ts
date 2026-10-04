@@ -13,6 +13,9 @@ const bodyOperations = OPERATION_SPECS.filter((spec) => spec.kind === 'api' && B
 const revisionOperations = OPERATION_SPECS.filter((spec) => Boolean(spec.revisionSource)).map(
 	(spec) => spec.value,
 );
+const reviewedStateOperations = OPERATION_SPECS.filter((spec) => spec.reviewRequired).map(
+	(spec) => spec.value,
+);
 const publishOperations = OPERATION_SPECS.filter((spec) => spec.publishQuery).map(
 	(spec) => spec.value,
 );
@@ -197,6 +200,16 @@ export const orbitPageProperties: INodeProperties[] = [
 				revisionMode: ['manual'],
 			},
 		},
+	},
+	{
+		displayName: 'Approved State ETag',
+		name: 'reviewedStateTag',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. W/"42" or "shop-..."',
+		description:
+			'The ETag or reviewTag from the state a person approved. Required for publishing, sending, or deleting; media cleanup previews do not require it.',
+		displayOptions: { show: { operation: reviewedStateOperations } },
 	},
 	{
 		displayName: 'Publish Changes Immediately',

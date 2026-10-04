@@ -91,4 +91,14 @@ describe('Advanced API path boundary', () => {
 			});
 		},
 	);
+
+	it('bounds path length and repeated decoding before transport', async () => {
+		await expect(executeCustomRequest(`/workspace/${'a'.repeat(4090)}`)).rejects.toThrow(
+			'at most 4096 characters',
+		);
+		await expect(executeCustomRequest(`/%${'25'.repeat(9)}6fperator`)).rejects.toThrow(
+			'too many encoding layers',
+		);
+		expect(apiRequest).not.toHaveBeenCalled();
+	});
 });

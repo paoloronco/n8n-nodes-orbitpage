@@ -59,6 +59,7 @@ describe('Shop API behavior', () => {
 				assertBinaryData: () => ({
 					fileName: 'guide.pdf',
 					mimeType: 'application/pdf',
+					data: Buffer.from('test file').toString('base64'),
 				}),
 				getBinaryDataBuffer: async () => Buffer.from('test file'),
 				httpRequest: vi.fn().mockRejectedValue(new Error('signed upload failed')),
@@ -72,5 +73,25 @@ describe('Shop API behavior', () => {
 			path: '/shop/uploads',
 			body: { uploadToken: reservationId },
 		});
+	});
+
+	it('rejects an oversized Shop binary before materializing it or reserving storage', async () => {
+		apiRequest.mockReset();
+		const getBinaryDataBuffer = vi.fn();
+		const context = {
+			getNodeParameter: parameterReader({ productId: 'product-1', binaryPropertyName: 'data' }),
+			getNode: () => ({ name: 'OrbitPage', type: 'n8n-nodes-orbitpage.orbitPage' }),
+			helpers: {
+				assertBinaryData: () => ({
+					data: '',
+					mimeType: 'application/pdf',
+					bytes: 50 * 1024 * 1024 + 1,
+				}),
+				getBinaryDataBuffer,
+			},
+		} as unknown as IExecuteFunctions;
+		await expect(uploadShopFileBinary(context, 0)).rejects.toThrow('50 MiB upload limit');
+		expect(getBinaryDataBuffer).not.toHaveBeenCalled();
+		expect(apiRequest).not.toHaveBeenCalled();
 	});
 });
