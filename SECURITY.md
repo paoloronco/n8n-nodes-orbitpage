@@ -55,3 +55,32 @@ GitHub Actions workflow with npm provenance.
 
 Verify the package name is exactly `n8n-nodes-orbitpage` and review npm
 provenance before installing it in a sensitive environment.
+
+### Development dependency checkpoint — 2026-10-18
+
+The official CLI is pinned to `0.52.5` and the development copy of
+`n8n-workflow` to `2.43.5`. These updates remove the vulnerable Axios versions;
+the lockfile also selects patched `source-map-js` `1.2.2`. The Node.js floor,
+peer dependency, node versions and workflow parameters remain unchanged.
+
+The complete development tree still has upstream advisories. This checkpoint
+does not claim that `npm audit` is clean:
+
+- The official CLI pins affected `handlebars` and reaches unpatched `braces`
+  through `fast-glob` and `micromatch`.
+- Its AI SDK reaches affected `stream-json` 1.x, `qs` and LangChain `uuid`.
+  The backend imports `stream-json/Assembler`, which is incompatible with the
+  patched 3.x API.
+- `release-it` reaches affected `undici` and `basic-ftp`. Its newer release
+  raises the supported Node.js floor beyond this package's current minimum.
+
+The official strict community-node rules reject an `overrides` field in the
+published package. Do not disable those checks or force incompatible versions
+to make an audit appear clean. Recheck upstream updates with `npm audit` and
+`npm audit --omit=dev`; the latter excludes the development toolchain.
+
+The pre-existing native development dependency `isolated-vm` `7.0.1` declares
+Node.js `>=24`. Consequently, `npm ci --engine-strict` on Node.js 22.22 fails
+both before and after these updates. Package loading and behavioral tests on
+Node.js 22 do not establish support for that native expression engine. Use
+Node.js 24 for the full development toolchain.

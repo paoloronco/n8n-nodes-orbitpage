@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+### Security
+
+- Update the official development CLI and workflow SDK to remove affected Axios versions, and refresh the patched source-map parser in the lockfile.
+- Document remaining upstream development advisories and compatibility constraints in `SECURITY.md`; preserve strict community-node validation and the Node.js minimum.
+
 ## 0.3.1 - 2026-10-04
 
 ### Fixed
