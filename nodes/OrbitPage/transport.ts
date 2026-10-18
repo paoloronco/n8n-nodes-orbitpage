@@ -18,7 +18,7 @@ export type OrbitPageRequest = {
 function credentialBaseUrl(baseUrl: unknown): URL {
 	const normalized = String(baseUrl || 'https://orbitpage.com').trim().replace(/\/+$/, '');
 	const parsed = new URL(normalized);
-	const localDevelopment = ['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
+	const localDevelopment = ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
 	if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && localDevelopment)) {
 		throw new Error('OrbitPage Base URL must use HTTPS. HTTP is allowed only for local development.');
 	}

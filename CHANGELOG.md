@@ -4,6 +4,10 @@ All notable changes to this package are documented here.
 
 ## Unreleased
 
+### Fixed
+
+- Accept the IPv6 loopback Base URL in action and trigger requests, consistently with the credential test, while retaining HTTPS for non-local hosts.
+
 ### Security
 
 - Update the official development CLI and workflow SDK to remove affected Axios versions, and refresh the patched source-map parser in the lockfile.
