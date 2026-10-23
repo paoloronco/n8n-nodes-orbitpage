@@ -40,7 +40,7 @@ the editor.
 | --- | --- |
 | OrbitPage | A hosted OrbitPage account and workspace at `https://orbitpage.com` |
 | n8n | n8n 2.x; the package uses n8n Nodes API v1 and is load-checked with `n8n-workflow` 2.43.5 |
-| Node.js | Runtime `>=22.22`; CI tests Node.js 22.22 and 24, while maintainers normally develop on 22.22 |
+| Node.js | Runtime `>=22.22`; CI tests Node.js 22.22 and 24; use Node.js 24 for the full development toolchain |
 | n8n Cloud | Availability depends on the n8n community-node review process |
 
 If you must use an older n8n 1.x installation or a materially newer runtime,

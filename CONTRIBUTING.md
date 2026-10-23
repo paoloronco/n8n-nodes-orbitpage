@@ -17,7 +17,7 @@ published on GitHub and npm. By participating, you agree to follow the project
 
 ## Development environment
 
-Use Node.js 22.22 or newer and install the locked dependencies:
+Use Node.js 24 for the full development toolchain and install the locked dependencies:
 
 ```bash
 npm ci

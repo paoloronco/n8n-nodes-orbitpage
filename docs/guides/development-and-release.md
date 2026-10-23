@@ -23,12 +23,17 @@ Git. The published npm package includes the built `dist/` output.
 
 ## Development setup
 
-Use Node.js 22.22 or newer for package development:
+Use Node.js 24 for the full development toolchain:
 
 ```bash
 npm ci
 npm run dev
 ```
+
+The package still supports Node.js 22.22 and CI checks both runtime versions.
+The workflow SDK's native `isolated-vm` dependency requires Node.js 24, so
+`npm ci --engine-strict` fails on Node.js 22. Passing the node's loading and
+behavioral tests on Node.js 22 does not validate that native expression engine.
 
 The development command links this checkout into an isolated n8n user folder,
 builds the package, watches TypeScript, and starts n8n with live reload. Use
