@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+### Security
+
+- Remove vulnerable development-only CLI/AI and release-tool dependency chains; retain the official n8n Cloud-compatible lint rules, local development server, and GitHub Actions publication with provenance.
+- Update Vitest and its locked Vite dependency, and require a clean full dependency audit in CI and publishing.
+- Prepare releases with `npm run release -- patch|minor|major` using native npm and Git; commit release notes before running it.
+
 ## 0.3.2 - 2026-10-23
 
 ### Fixed

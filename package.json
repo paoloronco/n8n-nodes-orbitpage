@@ -38,18 +38,18 @@
     "node": ">=22.22.0"
   },
   "scripts": {
-    "build": "n8n-node build",
+    "build": "node scripts/build.cjs",
     "build:watch": "tsc --watch",
-    "dev": "n8n-node dev",
-    "lint": "n8n-node lint",
-    "lint:fix": "n8n-node lint --fix",
+    "dev": "node scripts/dev.cjs",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "vitest run test",
     "docs:generate": "node scripts/generate-operation-docs.cjs",
     "docs:check": "node scripts/generate-operation-docs.cjs --check && node scripts/check-markdown-links.cjs",
     "check": "npm run lint && npm run build && npm run load:check && npm run docs:check && npm run test",
     "load:check": "node scripts/check-package-load.cjs",
-    "release": "n8n-node release",
-    "prepublishOnly": "n8n-node prerelease"
+    "release": "node scripts/release.cjs",
+    "prepublishOnly": "node scripts/check-publish.cjs"
   },
   "files": [
     "dist",
@@ -78,13 +78,17 @@
     "provenance": true
   },
   "devDependencies": {
-    "@n8n/node-cli": "0.52.5",
-    "eslint": "9.39.4",
+    "@eslint/js": "9.29.0",
+    "@n8n/eslint-plugin-community-nodes": "0.35.1",
+    "eslint": "9.29.0",
+    "eslint-import-resolver-typescript": "4.4.5",
+    "eslint-plugin-import-x": "4.17.1",
+    "eslint-plugin-n8n-nodes-base": "1.16.7",
     "n8n-workflow": "2.43.5",
     "prettier": "3.8.3",
-    "release-it": "21.0.2",
     "typescript": "5.9.3",
-    "vitest": "4.1.11"
+    "typescript-eslint": "8.70.0",
+    "vitest": "4.1.12"
   },
   "peerDependencies": {
     "n8n-workflow": "*"

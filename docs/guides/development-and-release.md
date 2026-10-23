@@ -30,19 +30,31 @@ npm ci
 npm run dev
 ```
 
+The development command links this checkout into an isolated n8n user folder,
+builds the package, watches TypeScript, and starts n8n with live reload. Use
+`npm run dev -- --external-n8n` with a separately managed n8n instance, or
+`--custom-user-folder <directory>` to select its user folder. An existing link
+to another checkout is rejected rather than overwritten.
+
 Useful commands:
 
 | Command | Purpose |
 | --- | --- |
 | `npm run lint` | Run the official n8n node lint rules |
-| `npm run build` | Build the package through `n8n-node` |
+| `npm run build` | Clean `dist`, compile TypeScript, and copy node assets and metadata |
 | `npm run load:check` | Load published node and credential classes in an isolated n8n-style runtime |
 | `npm run docs:generate` | Regenerate the operation matrix from the built typed catalog |
 | `npm run docs:check` | Fail if the checked-in operation matrix is stale |
 | `npm test` | Run the Vitest suite |
 | `npm run check` | Run lint, build, load, documentation, and test checks |
+| `npm audit` | Check all locked dependencies, including development tools |
 
 Run `npm run check` before opening a pull request.
+
+The lint configuration retains the official n8n Cloud-compatible community,
+credential, node, TypeScript, and import rules. Build and release preparation use
+Node.js, TypeScript, npm, and Git directly to avoid unrelated CLI scaffolding
+and AI dependencies. CI and publishing both require a clean full dependency audit.
 
 ## Architecture
 
@@ -135,14 +147,19 @@ Releases are maintainer-only:
 2. Confirm the intended release notes and semantic-version impact.
 3. Run `npm run check`.
 4. Inspect `npm pack --dry-run` for unexpected private or source files.
-5. Run `npm run release` locally. The official n8n CLI invokes `release-it` to
-   choose the version, update release metadata, commit, tag, push, and create the
-   GitHub release; it does not publish npm from the local machine.
+5. Commit the release notes with the intended version and date in `CHANGELOG.md`.
+   Run `npm run release -- patch` (or `minor` / `major`). The script requires a
+   clean `main`, the public origin and its upstream, fetches remote main, runs
+   the checks, and uses `npm version` to update both manifests, commit, and tag.
+   It atomically pushes main and the exact version tag. It never publishes npm
+   locally. If the push fails, inspect the local release commit/tag and remote
+   state before retrying the push; do not increment the version again.
 6. Confirm the pushed `X.Y.Z` tag exactly matches `package.json` and both version
    fields in `package-lock.json`.
 7. The GitHub Publish workflow verifies main ancestry, runs the complete package
-   check, inspects `npm pack --dry-run`, and invokes the official n8n release
-   command with npm authentication and GitHub OIDC provenance.
+   check and dependency audit, inspects `npm pack --dry-run`, and invokes
+   `npm publish --provenance` with npm authentication and GitHub OIDC provenance.
+   The prepublish guard requires this repository's matching tag workflow.
 8. After npm reports the new version, run the official community-package scan:
 
    ```bash
