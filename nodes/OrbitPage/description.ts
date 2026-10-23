@@ -358,7 +358,7 @@ export const orbitPageProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Revision or ETag (If-Match)',
+		displayName: 'Revision or ETag',
 		name: 'customIfMatch',
 		type: 'string',
 		default: '',

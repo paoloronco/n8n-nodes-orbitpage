@@ -47,7 +47,7 @@ cross-origin redirect.
 | `409 Conflict` | Either the workspace revision is stale or a business rule prevents the operation. | For `error.code: revision_conflict`, read the current state and intentionally reapply the change. For every other code, resolve the documented business condition before retrying. |
 | `413 Payload Too Large` | Body or upload exceeds the route limit. | Reduce the payload or use the intended direct-upload operation. |
 | `415 Unsupported Media Type` | Unsupported request or binary content type. | Use an accepted media type and uncompressed JSON requests. |
-| `428 Precondition Required` | Missing `If-Match` on a revision-controlled write. | Enable automatic revision fetching or pass the current value manually. |
+| `428 Precondition Required` | Missing `X-OrbitPage-If-Match` on a revision-controlled write. | Enable automatic revision fetching or pass the current value manually. |
 | `429 Too Many Requests` | Per-token minute or daily limit reached. | Wait for `Retry-After`, then retry with exponential backoff and jitter. |
 
 When **Continue On Fail** is enabled, the node returns an error item linked to

@@ -2,7 +2,7 @@
 
 OrbitPage uses optimistic concurrency to prevent one workflow from silently
 overwriting newer workspace changes. Revision-controlled writes must send a
-current `If-Match` value.
+current `X-OrbitPage-If-Match` value.
 
 ## Automatic revision mode
 
@@ -11,7 +11,7 @@ each revision-controlled write, the node:
 
 1. reads the operation's related resource;
 2. takes the response `ETag`, `X-OrbitPage-Revision`, or body `revision`;
-3. sends that value in the write request's `If-Match` header.
+3. sends that value in the write request's `X-OrbitPage-If-Match` header.
 
 The generated [operation matrix](../OPERATIONS.md) identifies the preflight
 endpoint in its **Revision source** column.
@@ -62,7 +62,7 @@ must be updated; the API returns `428` for a missing tag.
 
 > Package 0.1.2 limitation: the operation labelled **Backups & Versions >
 > Restore Saved Version to Draft** in that release has an ambiguous manual
-> revision input because the historical version and `If-Match` fields share the
+> revision input because the historical version and `X-OrbitPage-If-Match` fields share the
 > same internal parameter name. The current source separates these fields. When
 > using 0.1.2, select **Use Latest Automatically (Recommended)** for that
 > operation.
@@ -74,7 +74,7 @@ must be updated; the API returns `428` for a missing tag.
 | `409 Conflict` with `error.code: revision_conflict` | The workspace advanced after the supplied revision was read. | Read the resource again, compare the new state, and intentionally reapply the change. |
 | `409 Conflict` with `error.code: reviewed_state_conflict` | The approved Shop, campaign, or media set changed. | Review the new state and use its new tag. |
 | Other `409 Conflict` | A business rule prevents the operation in its current state. | Resolve the documented condition identified by `error.code`; do not treat it as a stale-revision retry. |
-| `428 Precondition Required` | A protected write did not include `If-Match`. | For reviewed effects, pass the tag that was approved; for other revisioned writes, use automatic or manual mode. |
+| `428 Precondition Required` | A protected write did not include `X-OrbitPage-If-Match`. | For reviewed effects, pass the tag that was approved; for other revisioned writes, use automatic or manual mode. |
 
 Do not blindly retry the same stale body. A retry is safe only after the
 workflow has considered changes made by another user or automation.

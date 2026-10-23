@@ -129,7 +129,7 @@ The action node groups related operations under **Workspace & Draft**,
 **Billing & Plans**. **Advanced API** provides relative custom requests.
 
 Writes that use optimistic concurrency can fetch the current revision
-automatically and send it as `If-Match`. Binary convenience operations handle
+automatically and send it as `X-OrbitPage-If-Match`. Binary convenience operations handle
 the reserve, signed upload, and finalize sequence without sending the OrbitPage
 bearer token to the storage host.
 
@@ -197,7 +197,7 @@ defaults.
 
 Use n8n expression mode to map the whole JSON value or individual values from
 the current input item. Revision fields remain separate: **Revision Check** adds
-`If-Match` automatically or accepts a revision from an earlier read. Compare
+`X-OrbitPage-If-Match` automatically or accepts a revision from an earlier read. Compare
 the body with the public
 [OpenAPI contract](https://orbitpage.com/api/openapi.json) because strict
 operations reject unknown fields.
@@ -280,7 +280,7 @@ Read the focused guides on
 | `401 Unauthorized` | Replace the missing, malformed, expired, or revoked token. |
 | `403 Forbidden` | Add the operation's required scope and confirm workspace access. |
 | `409 Conflict` | If `error.code` is `revision_conflict`, read the current resource and intentionally reapply the change against its new revision. Otherwise resolve the documented business condition identified by `error.code`. |
-| `428 Precondition Required` | Use automatic revision fetching or provide the current `ETag`/revision as `If-Match`. |
+| `428 Precondition Required` | Use automatic revision fetching or provide the current `ETag`/revision as `X-OrbitPage-If-Match`. |
 | `429 Too Many Requests` | Observe `Retry-After`, then retry with exponential backoff and jitter. |
 
 The [troubleshooting guide](docs/guides/troubleshooting.md) includes diagnostic

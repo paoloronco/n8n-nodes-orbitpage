@@ -2,9 +2,11 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 0.3.2 - 2026-10-23
 
 ### Fixed
+
+- Send revision and reviewed-state preconditions using `X-OrbitPage-If-Match`, preventing the hosting CDN from reporting HTTP 412 after a successful write. Existing workflow parameters and concurrency checks are preserved.
 
 - Accept the IPv6 loopback Base URL in action and trigger requests, consistently with the credential test, while retaining HTTPS for non-local hosts.
 

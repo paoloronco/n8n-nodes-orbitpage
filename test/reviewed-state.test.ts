@@ -29,6 +29,17 @@ describe('reviewed high-impact actions', () => {
 		apiRequest.mockResolvedValue({ success: true });
 	});
 
+	it('reads the current revision before updating a draft with the application precondition header', async () => {
+		apiRequest.mockResolvedValueOnce({ headers: { etag: 'W/"42"' }, statusCode: 200, body: {} });
+		await new OrbitPage().execute.call(context({
+			operation: 'updateProfile', revisionMode: 'auto', jsonBody: '{"bio":"Updated draft"}', publish: false, options: {},
+		}));
+		expect(apiRequest).toHaveBeenNthCalledWith(1, expect.anything(), expect.objectContaining({ method: 'GET', path: '/profile' }));
+		expect(apiRequest).toHaveBeenNthCalledWith(2, expect.anything(), expect.objectContaining({
+			method: 'PATCH', path: '/profile', headers: { 'X-OrbitPage-If-Match': 'W/"42"' }, body: { bio: 'Updated draft' },
+		}));
+	});
+
 	it.each([
 		['publishPage', '/publication', 'W/"42"', {}],
 		['publishShop', '/shop/publish', '"shop-review"', {}],
@@ -38,7 +49,7 @@ describe('reviewed high-impact actions', () => {
 		expect(apiRequest).toHaveBeenCalledOnce();
 		expect(apiRequest).toHaveBeenCalledWith(
 			expect.anything(),
-			expect.objectContaining({ method: 'POST', path, headers: { 'If-Match': tag } }),
+			expect.objectContaining({ method: 'POST', path, headers: { 'X-OrbitPage-If-Match': tag } }),
 		);
 	});
 
@@ -74,7 +85,7 @@ describe('reviewed high-impact actions', () => {
 		);
 		expect(apiRequest).toHaveBeenCalledWith(
 			expect.anything(),
-			expect.objectContaining({ headers: { 'If-Match': '"media-review"' } }),
+			expect.objectContaining({ headers: { 'X-OrbitPage-If-Match': '"media-review"' } }),
 		);
 	});
 });

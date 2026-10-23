@@ -462,7 +462,7 @@ async function customRequest(
 						'Request Body (JSON)',
 					),
 				}),
-		...(ifMatch ? { headers: { 'If-Match': ifMatch } } : {}),
+		...(ifMatch ? { headers: { 'X-OrbitPage-If-Match': ifMatch } } : {}),
 		returnFullResponse: includeResponseHeaders,
 	});
 }
@@ -527,7 +527,7 @@ export class OrbitPage implements INodeType {
 						path: operationPath(this, spec, itemIndex),
 						qs: operationQuery(this, spec, itemIndex),
 						...(spec.body ? { body } : {}),
-						...(revision ? { headers: { 'If-Match': revision } } : {}),
+						...(revision ? { headers: { 'X-OrbitPage-If-Match': revision } } : {}),
 						returnFullResponse: includeResponseHeaders,
 					});
 				}

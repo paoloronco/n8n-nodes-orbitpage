@@ -105,7 +105,7 @@ verification, and Vitest.
 Add behavioral tests for the successful path and important failure modes,
 especially for:
 
-- revision and `If-Match` behavior;
+- revision and `X-OrbitPage-If-Match` behavior;
 - path parameters and custom-path validation;
 - upload reserve, finalize, and cleanup;
 - trigger baseline and state comparison;
