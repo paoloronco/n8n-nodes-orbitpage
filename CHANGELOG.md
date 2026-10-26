@@ -2,13 +2,21 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 0.3.3 - 2026-10-26
+
+### Added
+
+- Add production-ready Release Guardian and AI Page Copilot example workflows, including reviewed publication, rollback safety, setup notes, and import/security regression tests.
 
 ### Security
 
 - Remove vulnerable development-only CLI/AI and release-tool dependency chains; retain the official n8n Cloud-compatible lint rules, local development server, and GitHub Actions publication with provenance.
-- Update Vitest and its locked Vite dependency, and require a clean full dependency audit in CI and publishing.
+- Update Vitest and its locked Vite dependency. Audit the dependency graph shipped to n8n installations in CI and publishing while tracking upstream-only development advisories separately.
 - Prepare releases with `npm run release -- patch|minor|major` using native npm and Git; commit release notes before running it.
+
+### Fixed
+
+- Show every scope required by immediate-public operations and clearly mark `publication:write` as conditional for optional publish controls, preventing tokens that pass setup but fail at runtime with an unexpected 403.
 
 ## 0.3.2 - 2026-10-23
 

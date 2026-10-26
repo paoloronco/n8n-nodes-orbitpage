@@ -26,13 +26,44 @@ describe('OrbitPage operation catalog', () => {
 
 	it('declares authentication scopes and valid revision preflights', () => {
 		for (const spec of API_OPERATION_SPECS) {
-			expect(spec.scope, spec.value).toMatch(/^[a-z]+:(read|write)$/);
+			const scopes = typeof spec.scope === 'string' ? [spec.scope] : spec.scope ?? [];
+			expect(scopes.length, spec.value).toBeGreaterThan(0);
+			for (const scope of scopes) expect(scope, spec.value).toMatch(/^[a-z]+:(read|write)$/);
 			expect([200, 201], spec.value).toContain(spec.successStatus);
 			if (spec.revisionSource) {
 				expect(spec.method, spec.value).not.toBe('GET');
 				expect(spec.revisionSource, spec.value).toMatch(/^\/[a-z-]+$/);
 			}
 		}
+	});
+
+	it('documents every additional publication scope enforced by the API', () => {
+		for (const operation of [
+			'replaceLinks',
+			'updateLink',
+			'createTextFile',
+			'updateTextFile',
+			'deleteTextFile',
+			'generateSitemap',
+			'restoreVersion',
+			'restoreBackup',
+		]) {
+			expect(operationSpec(operation)?.scope, operation).toContain('publication:write');
+		}
+	});
+
+	it('marks publication scope as conditional for optional publication controls', () => {
+		expect(API_OPERATION_SPECS.filter((spec) => spec.publishQuery).map((spec) => spec.value)).toEqual([
+			'updateProfile',
+			'replaceSubpages',
+			'replaceTheme',
+			'updateMenuSettings',
+			'updatePrivacySettings',
+		]);
+		expect(operationSpec('commitAiChanges')).toMatchObject({
+			scope: 'ai:write',
+			publishBody: true,
+		});
 	});
 
 	it('documents every creation response that returns HTTP 201', () => {

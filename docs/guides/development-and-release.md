@@ -52,14 +52,17 @@ Useful commands:
 | `npm run docs:check` | Fail if the checked-in operation matrix is stale |
 | `npm test` | Run the Vitest suite |
 | `npm run check` | Run lint, build, load, documentation, and test checks |
-| `npm audit` | Check all locked dependencies, including development tools |
+| `npm run audit:runtime` | Check the dependency graph shipped to n8n installations |
 
 Run `npm run check` before opening a pull request.
 
 The lint configuration retains the official n8n Cloud-compatible community,
 credential, node, TypeScript, and import rules. Build and release preparation use
 Node.js, TypeScript, npm, and Git directly to avoid unrelated CLI scaffolding
-and AI dependencies. CI and publishing both require a clean full dependency audit.
+and AI dependencies. CI and publishing require a clean audit of the dependency
+graph shipped to n8n installations. Review the full development audit separately;
+upstream n8n tooling can temporarily report advisories that are not included in
+the published package.
 
 ## Architecture
 

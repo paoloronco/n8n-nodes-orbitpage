@@ -23,7 +23,7 @@ Read and update the identity shown on the public page
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Profile Draft | Retrieve profile identity and metadata from the page draft | Read Only | GET | `/profile` | `200` | `profile:read` | None | — |
-| Update Profile Draft | Update profile fields in the draft; Publish Changes Immediately can publish the changes to the public page | Draft or Private Change · Public Change | PATCH | `/profile` | `200` | `profile:write` | Body: Send at least one profile field to change, such as name, bio, avatar, social_links, display settings, or SEO metadata. | `/profile` |
+| Update Profile Draft | Update profile fields in the draft; Publish Changes Immediately can publish the changes to the public page | Draft or Private Change · Public Change | PATCH | `/profile` | `200` | `profile:write`; `publication:write` when publishing | Body: Send at least one profile field to change, such as name, bio, avatar, social_links, display settings, or SEO metadata. | `/profile` |
 
 ## Page Content (Blocks)
 
@@ -32,8 +32,8 @@ Read and manage the ordered blocks shown on the main page
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Many Content Blocks | Retrieve the complete ordered page-block collection and its current revision | Read Only | GET | `/links` | `200` | `links:read` | None | — |
-| Replace All Content Blocks | Replace every page block, delete blocks omitted from the request, validate the collection and publish it immediately | Replaces or Deletes Data · Public Change | PUT | `/links` | `200` | `links:write` | Body: Start from the data array returned by Get Many Content Blocks. Send the complete list as that array or as {"links":[...]}; omitted blocks are deleted. | `/links` |
-| Update One Content Block | Update one page block, validate the change and publish it immediately | Public Change | PATCH | `/links/{linkId}` | `200` | `links:write` | Content Block ID + Body: Send at least one editable block field, such as title, description, url, backgroundColor, isActive, or status. The block ID and type are preserved. | `/links` |
+| Replace All Content Blocks | Replace every page block, delete blocks omitted from the request, validate the collection and publish it immediately | Replaces or Deletes Data · Public Change | PUT | `/links` | `200` | `links:write`, `publication:write` | Body: Start from the data array returned by Get Many Content Blocks. Send the complete list as that array or as {"links":[...]}; omitted blocks are deleted. | `/links` |
+| Update One Content Block | Update one page block, validate the change and publish it immediately | Public Change | PATCH | `/links/{linkId}` | `200` | `links:write`, `publication:write` | Content Block ID + Body: Send at least one editable block field, such as title, description, url, backgroundColor, isActive, or status. The block ID and type are preserved. | `/links` |
 
 ## Subpages
 
@@ -42,7 +42,7 @@ Read and replace the configured subpage collection
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Many Subpages | Retrieve all configured subpages | Read Only | GET | `/pages` | `200` | `pages:read` | None | — |
-| Replace All Subpages | Replace the complete subpage collection; omitted subpages are deleted, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/pages` | `200` | `pages:write` | Body: Start from the data array returned by Get Many Subpages. Send the complete list as that array or as {"pages":[...]}; omitted subpages are deleted. | `/pages` |
+| Replace All Subpages | Replace the complete subpage collection; omitted subpages are deleted, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/pages` | `200` | `pages:write`; `publication:write` when publishing | Body: Start from the data array returned by Get Many Subpages. Send the complete list as that array or as {"pages":[...]}; omitted subpages are deleted. | `/pages` |
 
 ## Theme
 
@@ -51,7 +51,7 @@ Read and replace the page theme
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Theme Draft | Retrieve the active draft theme | Read Only | GET | `/theme` | `200` | `theme:read` | None | — |
-| Replace Entire Theme Draft | Replace the complete draft theme; previous theme settings are overwritten, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/theme` | `200` | `theme:write` | Body: Start from the data field returned by Get Theme Draft. Send the complete desired theme; omitted properties fall back to defaults. | `/theme` |
+| Replace Entire Theme Draft | Replace the complete draft theme; previous theme settings are overwritten, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/theme` | `200` | `theme:write`; `publication:write` when publishing | Body: Start from the data field returned by Get Theme Draft. Send the complete desired theme; omitted properties fall back to defaults. | `/theme` |
 
 ## Page Settings
 
@@ -60,12 +60,12 @@ Manage menus, privacy, public text files and sitemap settings
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Page Settings | Retrieve menu, privacy, managed public text file and sitemap settings | Read Only | GET | `/settings` | `200` | `settings:read` | None | — |
-| Replace Entire Menu Settings | Replace the complete draft menu settings; omitted values can reset, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/settings/menu` | `200` | `settings:write` | Body: Start from data.menu returned by Get Page Settings and send the complete menu object. Missing required fields or unsupported fields are rejected; optional fields that you omit use their defaults. | `/settings` |
-| Replace All Privacy and Consent Settings | Replace the complete consent and privacy settings; omitted values can reset, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/settings/privacy` | `200` | `settings:write` | Body: Start from data.privacy returned by Get Page Settings. Send the complete consent configuration with mode, enabled, and all settings required by that mode. | `/settings` |
-| Create Public Text File | Create a managed text file and update its public URL immediately | Public Change | POST | `/settings/text-files` | `201` | `settings:write` | Body: Send path and content. Use /name.txt or /.well-known/name.txt with letters, numbers, dots, dashes, or underscores; a missing leading slash is added, while OrbitPage built-in paths and aliases are reserved. content accepts at most 50,000 characters. A workspace can store up to 20 custom TXT files and 128 KB across all managed TXT content. The path becomes public immediately. | `/settings` |
-| Replace Public Text File | Replace one managed text file and update its public URL immediately | Public Change | PUT | `/settings/text-files/{key}` | `200` | `settings:write` | Public Text File Key + Body: Send content only, up to 50,000 characters and within the 128 KB total TXT allowance. Public Text File Key selects the file that changes immediately. | `/settings` |
-| Delete Public Text File | Delete or reset one managed text file and update its public URL immediately | Replaces or Deletes Data · Public Change | DELETE | `/settings/text-files/{key}` | `200` | `settings:write` | Public Text File Key | `/settings` |
-| Regenerate Sitemap | Rebuild the managed public sitemap from current page content | Public Change | POST | `/settings/sitemap` | `200` | `settings:write` | None | `/settings` |
+| Replace Entire Menu Settings | Replace the complete draft menu settings; omitted values can reset, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/settings/menu` | `200` | `settings:write`; `publication:write` when publishing | Body: Start from data.menu returned by Get Page Settings and send the complete menu object. Missing required fields or unsupported fields are rejected; optional fields that you omit use their defaults. | `/settings` |
+| Replace All Privacy and Consent Settings | Replace the complete consent and privacy settings; omitted values can reset, and Publish Changes Immediately can publish the replacement | Draft or Private Change · Replaces or Deletes Data · Public Change | PUT | `/settings/privacy` | `200` | `settings:write`; `publication:write` when publishing | Body: Start from data.privacy returned by Get Page Settings. Send the complete consent configuration with mode, enabled, and all settings required by that mode. | `/settings` |
+| Create Public Text File | Create a managed text file and update its public URL immediately | Public Change | POST | `/settings/text-files` | `201` | `settings:write`, `publication:write` | Body: Send path and content. Use /name.txt or /.well-known/name.txt with letters, numbers, dots, dashes, or underscores; a missing leading slash is added, while OrbitPage built-in paths and aliases are reserved. content accepts at most 50,000 characters. A workspace can store up to 20 custom TXT files and 128 KB across all managed TXT content. The path becomes public immediately. | `/settings` |
+| Replace Public Text File | Replace one managed text file and update its public URL immediately | Public Change | PUT | `/settings/text-files/{key}` | `200` | `settings:write`, `publication:write` | Public Text File Key + Body: Send content only, up to 50,000 characters and within the 128 KB total TXT allowance. Public Text File Key selects the file that changes immediately. | `/settings` |
+| Delete Public Text File | Delete or reset one managed text file and update its public URL immediately | Replaces or Deletes Data · Public Change | DELETE | `/settings/text-files/{key}` | `200` | `settings:write`, `publication:write` | Public Text File Key | `/settings` |
+| Regenerate Sitemap | Rebuild the managed public sitemap from current page content | Public Change | POST | `/settings/sitemap` | `200` | `settings:write`, `publication:write` | None | `/settings` |
 
 ## Publication
 
@@ -116,7 +116,7 @@ Review AI usage, preview page changes and apply an approved preview
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get AI Usage and Allowance | Retrieve current AI request usage and remaining allowance | Read Only | GET | `/ai/allowance` | `200` | `ai:read` | None | — |
 | Preview AI Page Changes | Use the external AI service, consume allowance and store a private validated preview without changing or publishing the page | Draft or Private Change · External Side Effect | POST | `/ai/plan` | `200` | `ai:write` | Body: Send message with 1 to 4,000 characters. history is optional and accepts at most 8 objects containing role as user or assistant and content with 1 to 4,000 characters. requestId is an optional UUID. | — |
-| Apply Previewed AI Changes | Apply a previously validated AI preview to the draft; the preview can replace or remove content and publishes only when the reviewed request explicitly authorizes publication | Draft or Private Change · Replaces or Deletes Data · Public Change | POST | `/ai/commit` | `200` | `ai:write` | Body: Send previewToken from Preview AI Page Changes. Review removals and replacements in that preview; set publish to true only when the public change is approved. | — |
+| Apply Previewed AI Changes | Apply a previously validated AI preview to the draft; the preview can replace or remove content and publishes only when the reviewed request explicitly authorizes publication | Draft or Private Change · Replaces or Deletes Data · Public Change | POST | `/ai/commit` | `200` | `ai:write`; `publication:write` when body.publish=true | Body: Send previewToken from Preview AI Page Changes. Review removals and replacements in that preview; set publish to true only when the public change is approved. | — |
 
 ## Shop
 
@@ -182,9 +182,9 @@ Export backups and restore historical workspace data
 | Operation | What it does | Possible effects | Method | Path | Success | Required scope | Input | Revision source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Get Many Published Versions | Retrieve restorable historical versions captured when the page was published | Read Only | GET | `/versions` | `200` | `backup:read` | None | — |
-| Restore and Publish Historical Version | Replace the current page with a selected previously published version and publish it immediately | Replaces or Deletes Data · Public Change | POST | `/versions/{revision}/restore` | `200` | `backup:write` | Published Version Number | `/versions` |
+| Restore and Publish Historical Version | Replace the current page with a selected previously published version and publish it immediately | Replaces or Deletes Data · Public Change | POST | `/versions/{revision}/restore` | `200` | `backup:write`, `publication:write` | Published Version Number | `/versions` |
 | Export Workspace Backup | Download all supported workspace data or selected sections without changing the workspace | Read Only | GET | `/backup` | `200` | `backup:read` | Backup Sections (optional; defaults to all) | — |
-| Restore and Publish Workspace Backup | Validate the backup, replace the selected workspace data and publish the restored page immediately | Replaces or Deletes Data · Public Change | POST | `/backup/restore` | `200` | `backup:write` | Body: Send an exported managed backup directly, or place it under backup and optionally add sections from profile, links, theme, privacy, pages, menu, and discovery. Review the selected data before running because the restored result is published immediately. | `/versions` |
+| Restore and Publish Workspace Backup | Validate the backup, replace the selected workspace data and publish the restored page immediately | Replaces or Deletes Data · Public Change | POST | `/backup/restore` | `200` | `backup:write`, `publication:write` | Body: Send an exported managed backup directly, or place it under backup and optionally add sections from profile, links, theme, privacy, pages, menu, and discovery. Review the selected data before running because the restored result is published immediately. | `/versions` |
 
 ## Advanced API
 

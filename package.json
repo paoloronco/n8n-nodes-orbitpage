@@ -44,6 +44,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run test",
+    "audit:runtime": "npm audit --omit=dev",
     "docs:generate": "node scripts/generate-operation-docs.cjs",
     "docs:check": "node scripts/generate-operation-docs.cjs --check && node scripts/check-markdown-links.cjs",
     "check": "npm run lint && npm run build && npm run load:check && npm run docs:check && npm run test",

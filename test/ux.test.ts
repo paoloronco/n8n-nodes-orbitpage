@@ -104,6 +104,17 @@ describe('OrbitPage editor copy', () => {
 		);
 		expect(notices).toHaveLength(OPERATION_SPECS.length);
 		expect(notices.every((property) => property.type === 'notice')).toBe(true);
+		const noticeFor = (operation: string) =>
+			notices.find((property) => property.displayOptions?.show?.operation?.includes(operation));
+		expect(noticeFor('replaceLinks')?.description).toContain(
+			'Required scope: links:write, publication:write',
+		);
+		expect(noticeFor('updateProfile')?.description).toContain(
+			'publication:write when Publish Changes Immediately is enabled',
+		);
+		expect(noticeFor('commitAiChanges')?.description).toContain(
+			'publication:write when the request body sets publish to true',
+		);
 
 		const bodySpecs = OPERATION_SPECS.filter((spec) => Boolean(spec.body));
 		const bodyFields = orbitPageProperties.filter((property) => property.name === 'jsonBody');

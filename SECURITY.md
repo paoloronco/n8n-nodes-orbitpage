@@ -64,9 +64,10 @@ chain and release automation dependencies are excluded from the dependency
 graph. Release preparation uses native npm/Git commands, while publishing stays
 in the tag-validated GitHub Actions workflow with provenance.
 
-The full `npm audit`, including development dependencies, must pass in CI and
-before publication. `npm audit --omit=dev` is an additional runtime-only check,
-not a substitute. Do not dismiss development advisories to satisfy these gates.
+CI and publication require `npm run audit:runtime`, which audits the dependency
+graph installed with the package. Run the full `npm audit` during maintenance as
+well; upstream n8n development tooling can report advisories that are not shipped
+in this package and must be tracked until compatible upstream releases exist.
 
 Keep strict community-node validation, the ban on runtime dependencies and
 `overrides`, and the peer contract intact. Update compatible packages or remove

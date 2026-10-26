@@ -57,7 +57,12 @@ function requiredInput(spec) {
 
 function requiredScope(spec) {
 	if (spec.kind === 'custom') return 'Depends on API path';
-	return spec.scope ? `\`${cell(spec.scope)}\`` : '—';
+	if (!spec.scope) return '—';
+	const scopes = Array.isArray(spec.scope) ? spec.scope : [spec.scope];
+	const required = scopes.map((scope) => `\`${cell(scope)}\``).join(', ');
+	if (spec.publishQuery) return `${required}; \`publication:write\` when publishing`;
+	if (spec.publishBody) return `${required}; \`publication:write\` when body.publish=true`;
+	return required;
 }
 
 const lines = [

@@ -4,6 +4,7 @@ import {
 	OPERATION_SPECS,
 	RESOURCE_OPTIONS,
 	operationEffectLabel,
+	operationScopeLabel,
 	operationsForResource,
 	type OperationQueryParameter,
 	type PathParameter,
@@ -119,7 +120,7 @@ const operationHelpProperties = OPERATION_SPECS.map(
 		name: `operationHelp${spec.value.charAt(0).toUpperCase()}${spec.value.slice(1)}`,
 		type: 'notice',
 		default: '',
-		description: `${spec.description}. Required scope: ${spec.scope ?? 'Depends on the API path'}.`,
+		description: `${spec.description}. Required scope: ${operationScopeLabel(spec.scope)}${spec.publishQuery ? '; publication:write when Publish Changes Immediately is enabled' : ''}${spec.publishBody ? '; publication:write when the request body sets publish to true' : ''}.`,
 		displayOptions: {
 			show: {
 				operation: [spec.value],

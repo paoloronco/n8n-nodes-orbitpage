@@ -37,6 +37,7 @@ export type OperationEffect =
 	| 'destructive'
 	| 'advanced';
 export type OperationEffects = OperationEffect | readonly OperationEffect[];
+export type OperationScopes = string | readonly string[];
 export type OperationQueryParameter =
 	| 'days'
 	| 'sections'
@@ -56,6 +57,10 @@ export function operationEffectLabel(effect: OperationEffects): string {
 	return effects.map((item) => OPERATION_EFFECT_LABELS[item]).join(' · ');
 }
 
+export function operationScopeLabel(scope: OperationScopes | undefined): string {
+	return typeof scope === 'string' ? scope : scope?.join(', ') ?? 'Depends on the API path';
+}
+
 type OrbitPageNodeOption = {
 	name: string;
 	value: string;
@@ -73,13 +78,14 @@ export type OperationSpec = {
 	effect: OperationEffects;
 	method?: OrbitPageMethod;
 	path?: string;
-	scope?: string;
+	scope?: OperationScopes;
 	body?: 'required' | 'optional';
 	parameters?: PathParameter[];
 	queryParameters?: OperationQueryParameter[];
 	revisionSource?: string;
 	reviewRequired?: boolean;
 	publishQuery?: boolean;
+	publishBody?: boolean;
 	successStatus?: 200 | 201;
 };
 
@@ -91,7 +97,7 @@ const api = (
 	description: string,
 	method: OrbitPageMethod,
 	path: string,
-	scope: string,
+	scope: OperationScopes,
 	options: Partial<
 		Pick<
 			OperationSpec,
@@ -101,6 +107,7 @@ const api = (
 			| 'revisionSource'
 			| 'reviewRequired'
 			| 'publishQuery'
+				| 'publishBody'
 			| 'successStatus'
 			| 'effect'
 		>
@@ -271,7 +278,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Replace every page block, delete blocks omitted from the request, validate the collection and publish it immediately',
 		'PUT',
 		'/links',
-		'links:write',
+		['links:write', 'publication:write'],
 		{ body: 'required', revisionSource: '/links', effect: ['destructive', 'public'] },
 	),
 	api(
@@ -282,7 +289,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Update one page block, validate the change and publish it immediately',
 		'PATCH',
 		'/links/{linkId}',
-		'links:write',
+		['links:write', 'publication:write'],
 		{ body: 'required', parameters: ['linkId'], revisionSource: '/links', effect: 'public' },
 	),
 
@@ -390,7 +397,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Create a managed text file and update its public URL immediately',
 		'POST',
 		'/settings/text-files',
-		'settings:write',
+		['settings:write', 'publication:write'],
 		{ body: 'required', revisionSource: '/settings', effect: 'public', successStatus: 201 },
 	),
 	api(
@@ -401,7 +408,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Replace one managed text file and update its public URL immediately',
 		'PUT',
 		'/settings/text-files/{key}',
-		'settings:write',
+		['settings:write', 'publication:write'],
 		{
 			body: 'required',
 			parameters: ['key'],
@@ -417,7 +424,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Delete or reset one managed text file and update its public URL immediately',
 		'DELETE',
 		'/settings/text-files/{key}',
-		'settings:write',
+		['settings:write', 'publication:write'],
 		{
 			parameters: ['key'],
 			revisionSource: '/settings',
@@ -432,7 +439,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Rebuild the managed public sitemap from current page content',
 		'POST',
 		'/settings/sitemap',
-		'settings:write',
+		['settings:write', 'publication:write'],
 		{ revisionSource: '/settings', effect: 'public' },
 	),
 
@@ -610,7 +617,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'POST',
 		'/ai/commit',
 		'ai:write',
-		{ body: 'required', effect: ['draft', 'destructive', 'public'] },
+		{ body: 'required', publishBody: true, effect: ['draft', 'destructive', 'public'] },
 	),
 
 	api(
@@ -955,7 +962,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Replace the current page with a selected previously published version and publish it immediately',
 		'POST',
 		'/versions/{revision}/restore',
-		'backup:write',
+		['backup:write', 'publication:write'],
 		{
 			parameters: ['revision'],
 			revisionSource: '/versions',
@@ -981,7 +988,7 @@ export const OPERATION_SPECS: OperationSpec[] = [
 		'Validate the backup, replace the selected workspace data and publish the restored page immediately',
 		'POST',
 		'/backup/restore',
-		'backup:write',
+		['backup:write', 'publication:write'],
 		{
 			body: 'required',
 			revisionSource: '/versions',
