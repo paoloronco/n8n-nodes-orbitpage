@@ -1,5 +1,5 @@
 {
-  "node": "n8n-nodes-orbitpage",
+  "node": "n8n-nodes-orbitpage.orbitPage",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
   "categories": ["Marketing & Content", "Development", "Sales"],

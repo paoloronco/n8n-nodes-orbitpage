@@ -2,6 +2,12 @@
 
 All notable changes to this package are documented here.
 
+## 0.3.4 - 2026-10-26
+
+### Fixed
+
+- Use the fully qualified `n8n-nodes-orbitpage.orbitPage` and `n8n-nodes-orbitpage.orbitPageTrigger` identifiers in codex metadata for n8n Creator Portal validation.
+
 ## 0.3.3 - 2026-10-26
 
 ### Added

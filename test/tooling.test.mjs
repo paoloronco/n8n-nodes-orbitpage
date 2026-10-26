@@ -43,6 +43,16 @@ describe('dependency-free tooling', () => {
 		}
 	}, 30000);
 
+	it('uses fully qualified node identifiers in codex metadata', () => {
+		for (const [node, identifier] of [
+			['OrbitPage', 'n8n-nodes-orbitpage.orbitPage'],
+			['OrbitPageTrigger', 'n8n-nodes-orbitpage.orbitPageTrigger'],
+		]) {
+			const metadata = JSON.parse(readFileSync(path.join(root, 'nodes', node, `${node}.node.json`), 'utf8'));
+			expect(metadata.node).toBe(identifier);
+		}
+	});
+
 	it('only permits the matching public-repository tag to pass the publish guard', () => {
 		const valid = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY: 'paoloronco/n8n-nodes-orbitpage', GITHUB_REF: `refs/tags/${manifest.version}` };
 		for (const [change, expected] of [[{}, 0], [{ GITHUB_ACTIONS: 'false' }, 1], [{ GITHUB_REPOSITORY: 'other/repo' }, 1], [{ GITHUB_REF: 'refs/heads/main' }, 1], [{ GITHUB_REF: 'refs/tags/0.0.0' }, 1]]) {
