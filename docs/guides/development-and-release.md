@@ -177,9 +177,12 @@ Releases are maintainer-only:
 9. Confirm the npm description, keywords, README, repository link, homepage,
    provenance, and automatically created GitHub release all show the new
    version.
-10. Once the published version passes the scan, submit or update the node in the
-    [n8n Creator Portal](https://creators.n8n.io/nodes) for verified in-editor
-    discovery.
+10. For an initial verification, submit the scanned package through the
+    [n8n Creator Portal](https://creators.n8n.io/nodes). For an already verified
+    node, n8n monitors npm versions and propagates updates after a quick
+    re-review, as described in the approval email. Check the portal for any
+    requested follow-up and confirm catalog availability separately from npm
+    publication. Do not describe the package as preinstalled or built into n8n.
 
 The workflow currently authenticates with the repository's `NPM_TOKEN` secret
 and signs provenance through GitHub OIDC. Replace the token with npm Trusted

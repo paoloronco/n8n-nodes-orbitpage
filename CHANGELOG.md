@@ -2,6 +2,14 @@
 
 All notable changes to this package are documented here.
 
+## Unreleased
+
+### Documentation
+
+- Clarify Verified Community Node approval, separate catalog publication from
+  approval, and document Cloud/self-hosted installation, package links and
+  missing-catalog troubleshooting. Runtime behavior is unchanged.
+
 ## 0.3.4 - 2026-10-26
 
 ### Fixed

@@ -3,6 +3,24 @@
 Start with the smallest non-destructive request that exercises the same
 credential boundary: **Workspace & Draft > Get Workspace Overview**.
 
+## OrbitPage is missing from the nodes panel
+
+- Approval as a Verified Community Node and publication in n8n's catalog are
+  separate steps. On Cloud, wait for the catalog entry if it is not listed yet.
+- Search for **OrbitPage** under **More from the community** from a workflow's
+  **+** nodes panel, not only among installed nodes.
+- Only instance owners and admins can install; other members can use the package
+  once installed.
+- On Cloud, check **Verified community nodes** in the Cloud console's
+  **Instance settings**. Self-hosted administrators should check their
+  community-node environment settings and package compatibility.
+- A self-hosted instance can install `n8n-nodes-orbitpage` through
+  **Settings > Community Nodes** or npm. These npm installation paths are not
+  available on n8n Cloud.
+
+Follow [Getting started](getting-started.md#choose-an-installation-method) and
+[n8n's installation guide](https://docs.n8n.io/integrations/community-nodes/installation-and-management/install-verified-community-nodes/).
+
 ## Class could not be found
 
 An interrupted or partial community-node installation can leave stale package

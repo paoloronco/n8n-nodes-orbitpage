@@ -4,8 +4,9 @@
 [![npm package version](https://img.shields.io/npm/v/n8n-nodes-orbitpage.svg)](https://www.npmjs.com/package/n8n-nodes-orbitpage)
 [![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
 
-`n8n-nodes-orbitpage` is the official OrbitPage community node package for
-[n8n](https://n8n.io). It connects n8n workflows to
+`n8n-nodes-orbitpage` is the OrbitPage-maintained community node package for
+[n8n](https://n8n.io), approved by n8n as a **Verified Community Node**.
+It connects n8n workflows to
 [OrbitPage](https://orbitpage.com/en-US), a one-page website and link-in-bio builder.
 It lets you automate a hosted OrbitPage workspace directly from n8n workflows.
 
@@ -41,7 +42,7 @@ the editor.
 | OrbitPage | A hosted OrbitPage account and workspace at `https://orbitpage.com` |
 | n8n | n8n 2.x; the package uses n8n Nodes API v1 and is load-checked with `n8n-workflow` 2.43.5 |
 | Node.js | Runtime `>=22.22`; CI tests Node.js 22.22 and 24; use Node.js 24 for the full development toolchain |
-| n8n Cloud | Availability depends on the n8n community-node review process |
+| n8n Cloud | Install from the nodes panel once OrbitPage appears in n8n's verified catalog; catalog publication follows approval |
 
 If you must use an older n8n 1.x installation or a materially newer runtime,
 validate the package and your workflow in a staging instance before production.
@@ -51,9 +52,32 @@ account permissions.
 
 ## Installation
 
+### Verified nodes panel: n8n Cloud and self-hosted
+
+The package remains a community node: verification does not make it a built-in,
+preinstalled n8n node. Approval and catalog publication are separate steps.
+
+Once OrbitPage appears in the catalog, an instance owner or admin can:
+
+1. Open a workflow's **Canvas** and select **+** to open the nodes panel.
+2. Search for **OrbitPage** under **More from the community**.
+3. Select the node and choose **Install**.
+4. Add **OrbitPage** or **OrbitPage Trigger** to a workflow. All instance members
+   can use the installed package.
+
+Verified community nodes must be enabled for the instance. If OrbitPage is not
+listed yet, Cloud users must wait for catalog publication; self-hosted users
+can use either installation method below. See
+[n8n's verified-node installation guide](https://docs.n8n.io/integrations/community-nodes/installation-and-management/install-verified-community-nodes/).
+
+Package download, versions and source:
+[npm](https://www.npmjs.com/package/n8n-nodes-orbitpage),
+[GitHub](https://github.com/paoloronco/n8n-nodes-orbitpage).
+Install through n8n rather than copying downloaded source into a workflow.
+
 ### Self-hosted n8n UI
 
-As an n8n instance owner, open **Settings > Community Nodes**, select
+As an n8n instance owner or admin, open **Settings > Community Nodes**, select
 **Install**, and enter:
 
 ```text

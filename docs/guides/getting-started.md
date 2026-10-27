@@ -6,23 +6,44 @@ and executes a non-destructive workspace read.
 ## Prerequisites
 
 - A hosted OrbitPage account with access to a workspace.
-- An n8n 2.x installation that permits community nodes.
+- An n8n 2.x instance that permits community nodes, with owner or admin access
+  to install the package. On Cloud, OrbitPage must appear in the verified catalog.
 - Node.js 22.22 or newer for a self-hosted runtime. CI validates Node.js 22.22
   and 24.
 - Permission to create personal API tokens in OrbitPage.
 
-## Install through the self-hosted n8n UI
+## Choose an installation method
 
-1. Sign in to self-hosted n8n as the instance owner.
+OrbitPage is approved by n8n as a **Verified Community Node**, maintained by
+OrbitPage. It is not preinstalled or a built-in n8n node. Catalog publication
+follows approval; if the node is not listed yet, use the self-hosted path below
+or wait for publication on Cloud.
+
+Download and version links: [npm package](https://www.npmjs.com/package/n8n-nodes-orbitpage)
+and [public source](https://github.com/paoloronco/n8n-nodes-orbitpage).
+
+### Verified catalog: n8n Cloud and self-hosted
+
+1. Sign in as an instance owner or admin and open a workflow's **Canvas**.
+2. Select **+** to open the nodes panel and search for **OrbitPage**.
+3. Select the result in **More from the community**, then **Install**.
+4. Confirm that **OrbitPage** and **OrbitPage Trigger** can be added.
+
+Once installed, all instance members can use the nodes. If no result or install
+option appears, see [catalog troubleshooting](troubleshooting.md#orbitpage-is-missing-from-the-nodes-panel).
+Cloud does not support installing arbitrary npm packages. See
+[n8n's verified-node installation guide](https://docs.n8n.io/integrations/community-nodes/installation-and-management/install-verified-community-nodes/).
+
+### Self-hosted n8n UI
+
+1. Sign in to self-hosted n8n as the instance owner or admin.
 2. Open **Settings > Community Nodes**.
 3. Select **Install**.
 4. Enter `n8n-nodes-orbitpage`.
 5. Confirm the installation.
 6. Restart n8n if the node is not immediately available.
 
-Availability on n8n Cloud depends on the n8n community-node review process.
-
-## Install on a self-hosted command line
+### Self-hosted command line
 
 From the community-nodes directory used by your n8n installation, run:
 
@@ -114,7 +135,7 @@ handle explicitly.
 
 ## Import an example
 
-The repository includes two starting workflows:
+Start with either of these read-only workflows:
 
 - [`read-workspace.json`](../../examples/read-workspace.json) performs the safe
   read described above;
@@ -123,7 +144,9 @@ The repository includes two starting workflows:
 
 After import, open each OrbitPage node and replace the placeholder credential
 reference with your saved credential. See the
-[examples guide](../../examples/README.md) for scopes and trigger behavior.
+[examples guide](../../examples/README.md) for scopes, trigger behavior, and the
+more advanced Release Guardian and AI Page Copilot workflows. Install the
+package before importing an example; importing JSON does not install its nodes.
 
 ## Upgrade from 0.1.x to 0.2.0
 
