@@ -215,6 +215,12 @@ describe('OrbitPage editor copy', () => {
 });
 
 describe('OrbitPage credentials and trigger copy', () => {
+	it('lets n8n inject the polling schedule exactly once', () => {
+		const triggerNode = new OrbitPageTrigger();
+		expect(triggerNode.description.polling).toBe(true);
+		expect(triggerNode.description.properties.some((property) => property.name === 'pollTimes')).toBe(false);
+	});
+
 	it('uses one neutral token label and protects the connection test', () => {
 		const credential = new OrbitPageApi();
 		const token = credential.properties.find((property) => property.name === 'accessToken');

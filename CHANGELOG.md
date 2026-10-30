@@ -2,6 +2,13 @@
 
 All notable changes to this package are documented here.
 
+## 0.3.6 - 2026-10-30
+
+### Fixed
+
+- Show the polling schedule once in OrbitPage Trigger by using n8n's built-in
+  scheduling controls. Existing saved polling schedules remain unchanged.
+
 ## 0.3.5 - 2026-10-30
 
 ### Fixed

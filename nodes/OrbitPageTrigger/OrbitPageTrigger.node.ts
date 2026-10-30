@@ -7,7 +7,7 @@ import type {
 	INodeTypeDescription,
 	IPollFunctions,
 } from 'n8n-workflow';
-import { cronNodeOptions, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { orbitPageApiRequest, type OrbitPageRequest } from '../OrbitPage/transport';
 import { resolveMainConnectionType } from '../shared/n8nCompatibility';
 
@@ -102,18 +102,9 @@ export class OrbitPageTrigger implements INodeType {
 		inputs: [],
 		outputs: [mainConnectionType],
 		credentials: [{ name: 'orbitPageApi', required: true }],
+		// n8n injects the scheduling controls for polling nodes.
 		polling: true,
 		properties: [
-			{
-				displayName: 'Poll Times',
-				name: 'pollTimes',
-				type: 'fixedCollection',
-				typeOptions: { multipleValues: true, multipleValueButtonText: 'Add Poll Time' },
-				default: { item: [{ mode: 'everyMinute' }] },
-				description: 'Times at which n8n checks OrbitPage for changes',
-				placeholder: 'Add Poll Time',
-				options: cronNodeOptions,
-			},
 			{
 				displayName: 'Trigger On',
 				name: 'event',
