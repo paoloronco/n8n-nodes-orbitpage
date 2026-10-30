@@ -9,7 +9,7 @@ const dist = path.join(root, 'dist');
 rmSync(dist, { recursive: true, force: true });
 execFileSync(process.execPath, [require.resolve('typescript/bin/tsc')], { cwd: root, stdio: 'inherit' });
 
-for (const folder of ['credentials', 'nodes']) {
+for (const folder of ['credentials', 'icons', 'nodes']) {
 	for (const file of readdirSync(path.join(root, folder), { recursive: true })) {
 		if (!/\.(png|svg|json)$/.test(file)) continue;
 		const destination = path.join(dist, folder, file);

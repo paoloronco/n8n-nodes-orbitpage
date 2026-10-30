@@ -2,7 +2,13 @@
 
 All notable changes to this package are documented here.
 
-## Unreleased
+## 0.3.5 - 2026-10-30
+
+### Fixed
+
+- Include the light and dark OrbitPage icons in the built npm package so the
+  action node, polling trigger, and API credential display their logos in n8n.
+  Package-load checks now reject missing icon files before a release.
 
 ### Documentation
 

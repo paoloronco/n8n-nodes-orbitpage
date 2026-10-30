@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { existsSync } = require('node:fs');
 const Module = require('node:module');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -40,6 +41,14 @@ function loadTargets(workflowExports, scenario) {
 				typeName,
 				`${scenario}: ${className} type name`,
 			);
+			const icon = instance.description?.icon ?? instance.icon;
+			for (const reference of typeof icon === 'string' ? [icon] : Object.values(icon)) {
+				assert.ok(reference.startsWith('file:'), `${scenario}: ${className} file icon`);
+				assert.ok(
+					existsSync(path.resolve(path.dirname(filePath), reference.slice(5))),
+					`${scenario}: ${className} missing icon ${reference}`,
+				);
+			}
 		}
 	} finally {
 		Module._load = originalLoad;
@@ -50,4 +59,4 @@ function loadTargets(workflowExports, scenario) {
 loadTargets(actualWorkflow, 'current n8n');
 loadTargets({ ...actualWorkflow, NodeConnectionTypes: undefined }, 'legacy n8n');
 
-console.log('Package classes load with current and legacy n8n connection exports.');
+console.log('Package classes and icons load with current and legacy n8n connection exports.');
